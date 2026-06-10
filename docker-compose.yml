@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: user-center-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-user_center}
+      POSTGRES_USER: ${DB_USERNAME:-user_center}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-user_center}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - user-center-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-user_center} -d ${DB_NAME:-user_center}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  user-center-postgres-data:

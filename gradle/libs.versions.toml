@@ -1,0 +1,55 @@
+[versions]
+kotlin = "2.2.0"
+kotlinx-serialization-JSON = "1.7.3"
+kotlinx-coroutines = "1.9.0"
+spring-boot = "3.5.3"
+spring-dependency-management = "1.1.6"
+postgresql = "42.7.2"
+spring-modulith = "1.4.1"
+kotlin-logging = "7.0.3"
+knife4j = "4.6.0"
+jackson = "2.15.2"
+jjwt = "0.12.5"
+
+[libraries]
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-JSON" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "spring-boot" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring-boot" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "spring-boot" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-starter-logging", version.ref = "spring-boot" }
+spring-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring-boot" }
+spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc", version.ref = "spring-boot" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+flyway-core = { module = "org.flywaydb:flyway-core" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+spring-doc-knife4j-spring-boot-starter = { module = "com.github.xingfudeshi:knife4j-openapi3-jakarta-spring-boot-starter", version.ref = "knife4j" }
+
+spring-modulith-core = { module = "org.springframework.modulith:spring-modulith-core", version.ref = "spring-modulith" }
+spring-modulith-events-core = { module = "org.springframework.modulith:spring-modulith-events-core", version.ref = "spring-modulith" }
+spring-modulith-events-api = { module = "org.springframework.modulith:spring-modulith-events-api", version.ref = "spring-modulith" }
+
+[bundles]
+kotlinx-ecosystem = ["kotlinx-serialization", "kotlinx-coroutines"]
+spring-boot = ["spring-boot-starter", "spring-boot-starter-web", "spring-boot-starter-logging", "spring-boot-starter-validation", "spring-boot-starter-actuator", "spring-doc-knife4j-spring-boot-starter"]
+spring-data-base = ["spring-data-jpa", "postgresql", "spring-boot-starter-jdbc"]
+spring-modulith = ["spring-modulith-core", "spring-modulith-events-core", "spring-modulith-events-api"]
+jjwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
+testing = ["spring-boot-starter-test"]
+
+[plugins]
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
