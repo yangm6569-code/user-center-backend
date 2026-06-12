@@ -1,0 +1,85 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: user-center-backend
+  output:
+    ansi:
+      enabled: always
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:user_center}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:pym666666}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+  flyway:
+    enabled: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        create_foreign_keys: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  jackson:
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    cn.scysn: DEBUG
+    org.springframework.boot: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
+    root: WARN
+  file:
+    name: logs/${spring.application.name}.log
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    persist-authorization: true
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: "用户中台"
+      paths-to-match: "/api/v1/**,/oauth/**"
+      packages-to-scan: "cn.scysn"
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+user-center:
+  security:
+    jwt-secret-key: ${JWT_SECRET_KEY:dev-only-change-me-dev-only-change-me-dev-only-change-me-32}
+    issuer: ${JWT_ISSUER:user-center}
+    access-token-ttl-seconds: ${ACCESS_TOKEN_TTL_SECONDS:900}
+    refresh-token-ttl-seconds: ${REFRESH_TOKEN_TTL_SECONDS:604800}
+    login-failure-threshold: ${LOGIN_FAILURE_THRESHOLD:5}
+    login-lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+  bootstrap:
+    admin-username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
+    admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:Admin@123456}
+    admin-email: ${BOOTSTRAP_ADMIN_EMAIL:admin@example.com}

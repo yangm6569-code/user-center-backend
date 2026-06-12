@@ -1,0 +1,24 @@
+2026-06-12T00:59:24.258+08:00  INFO 38388 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.10 with PID 38388 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc\app)
+2026-06-12T00:59:24.267+08:00 DEBUG 38388 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-12T00:59:24.268+08:00  INFO 38388 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-12T00:59:26.459+08:00  INFO 38388 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-12T00:59:26.547+08:00  INFO 38388 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2200 ms
+2026-06-12T00:59:26.715+08:00 DEBUG 38388 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-12T00:59:27.617+08:00  WARN 38388 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-12T00:59:32.055+08:00  INFO 38388 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-12T00:59:32.138+08:00  INFO 38388 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-12T00:59:32.152+08:00  INFO 38388 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 8.674 seconds (process running for 9.07)
+2026-06-12T00:59:51.750+08:00  INFO 38388 --- [user-center-backend] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-12T00:59:51.752+08:00  INFO 38388 --- [user-center-backend] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-12T01:05:40.008+08:00  INFO 29748 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.10 with PID 29748 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc\app)
+2026-06-12T01:05:40.010+08:00 DEBUG 29748 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-12T01:05:40.011+08:00  INFO 29748 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-12T01:05:42.040+08:00  INFO 29748 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-12T01:05:42.188+08:00  INFO 29748 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2110 ms
+2026-06-12T01:05:42.476+08:00 DEBUG 29748 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-12T01:05:43.387+08:00  WARN 29748 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-12T01:05:48.258+08:00  INFO 29748 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-12T01:05:48.340+08:00  INFO 29748 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-12T01:05:48.355+08:00  INFO 29748 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 8.824 seconds (process running for 9.184)
+2026-06-12T01:05:51.971+08:00  INFO 29748 --- [user-center-backend] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-12T01:05:51.973+08:00  INFO 29748 --- [user-center-backend] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

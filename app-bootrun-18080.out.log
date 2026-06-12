@@ -1,0 +1,46 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :common:checkKotlinGradlePluginConfigurationErrors
+> Task :common:compileKotlin UP-TO-DATE
+> Task :common:compileJava NO-SOURCE
+> Task :common:processResources NO-SOURCE
+> Task :common:classes UP-TO-DATE
+> Task :common:jar UP-TO-DATE
+> Task :iam:checkKotlinGradlePluginConfigurationErrors
+> Task :iam:compileKotlin UP-TO-DATE
+> Task :iam:compileJava NO-SOURCE
+> Task :iam:processResources NO-SOURCE
+> Task :iam:classes UP-TO-DATE
+> Task :iam:jar UP-TO-DATE
+> Task :app:compileKotlin UP-TO-DATE
+> Task :app:compileJava NO-SOURCE
+> Task :app:processResources UP-TO-DATE
+> Task :app:classes UP-TO-DATE
+> Task :app:resolveMainClassName UP-TO-DATE
+
+> Task :app:bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-06-10T17:44:38.745+08:00  INFO 22804 --- [user-center-backend] [           main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.10 with PID 22804 (E:\DownLoad\Idea-project\codxFile\公司项目\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\公司项目\app)
+2026-06-10T17:44:38.750+08:00  INFO 22804 --- [user-center-backend] [           main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-10T17:44:40.338+08:00  INFO 22804 --- [user-center-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 18080 (http)
+2026-06-10T17:44:40.354+08:00  INFO 22804 --- [user-center-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-10T17:44:40.354+08:00  INFO 22804 --- [user-center-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-06-10T17:44:40.433+08:00  INFO 22804 --- [user-center-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-10T17:44:40.436+08:00  INFO 22804 --- [user-center-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1618 ms
+2026-06-10T17:44:41.180+08:00  INFO 22804 --- [user-center-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 18080 (http) with context path '/'
+2026-06-10T17:44:41.191+08:00  INFO 22804 --- [user-center-backend] [           main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 2.965 seconds (process running for 3.463)
+2026-06-10T17:45:05.311+08:00  INFO 22804 --- [user-center-backend] [io-18080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-10T17:45:05.311+08:00  INFO 22804 --- [user-center-backend] [io-18080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-10T17:45:05.312+08:00  INFO 22804 --- [user-center-backend] [io-18080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-10T17:45:06.681+08:00  INFO 22804 --- [user-center-backend] [io-18080-exec-1] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 1326 ms
+
+> Task :app:bootRun FAILED
+11 actionable tasks: 4 executed, 7 up-to-date

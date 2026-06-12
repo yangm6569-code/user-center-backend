@@ -1,0 +1,58 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :common:checkKotlinGradlePluginConfigurationErrors
+> Task :common:compileKotlin UP-TO-DATE
+> Task :common:compileJava NO-SOURCE
+> Task :common:processResources NO-SOURCE
+> Task :common:classes UP-TO-DATE
+> Task :common:jar UP-TO-DATE
+> Task :iam:checkKotlinGradlePluginConfigurationErrors
+> Task :iam:compileKotlin UP-TO-DATE
+> Task :iam:compileJava NO-SOURCE
+> Task :iam:processResources NO-SOURCE
+> Task :iam:classes UP-TO-DATE
+> Task :iam:jar UP-TO-DATE
+> Task :app:compileKotlin UP-TO-DATE
+> Task :app:compileJava NO-SOURCE
+> Task :app:processResources UP-TO-DATE
+> Task :app:classes UP-TO-DATE
+> Task :app:resolveMainClassName UP-TO-DATE
+
+> Task :app:bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-06-10T17:11:27.596+08:00  INFO 33888 --- [user-center-backend] [           main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.10 with PID 33888 (E:\DownLoad\Idea-project\codxFile\公司项目\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\公司项目\app)
+2026-06-10T17:11:27.600+08:00  INFO 33888 --- [user-center-backend] [           main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-10T17:11:29.094+08:00  INFO 33888 --- [user-center-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-10T17:11:29.116+08:00  INFO 33888 --- [user-center-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-10T17:11:29.116+08:00  INFO 33888 --- [user-center-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-06-10T17:11:29.202+08:00  INFO 33888 --- [user-center-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-10T17:11:29.204+08:00  INFO 33888 --- [user-center-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1520 ms
+2026-06-10T17:11:29.967+08:00  WARN 33888 --- [user-center-backend] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-06-10T17:11:29.993+08:00  INFO 33888 --- [user-center-backend] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-06-10T17:11:30.038+08:00 ERROR 33888 --- [user-center-backend] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+
+> Task :app:bootRun FAILED
+11 actionable tasks: 4 executed, 7 up-to-date

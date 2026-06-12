@@ -1,0 +1,234 @@
+2026-06-11T02:07:45.600+08:00  INFO 37984 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 37984 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T02:07:45.603+08:00 DEBUG 37984 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T02:07:45.603+08:00  INFO 37984 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T02:07:48.359+08:00  INFO 37984 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T02:07:48.479+08:00  INFO 37984 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2805 ms
+2026-06-11T02:07:48.693+08:00 DEBUG 37984 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T02:07:49.343+08:00  WARN 37984 --- [user-center-backend] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 17.5 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2026-06-11T02:07:49.414+08:00  WARN 37984 --- [user-center-backend] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 1
+-> Applied to database : -103768245
+-> Resolved locally    : 1629910616
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+2026-06-11T02:07:49.558+08:00  INFO 37984 --- [user-center-backend] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-06-11T02:07:49.585+08:00 ERROR 37984 --- [user-center-backend] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 1
+-> Applied to database : -103768245
+-> Resolved locally    : 1629910616
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:954) ~[spring-context-6.1.14.jar:6.1.14]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625) ~[spring-context-6.1.14.jar:6.1.14]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352) ~[spring-boot-3.3.5.jar:3.3.5]
+	at cn.scysn.UserCenterApplicationKt.main(UserCenterApplication.kt:13) ~[main/:na]
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 1
+-> Applied to database : -103768245
+-> Resolved locally    : 1629910616
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1806) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.14.jar:6.1.14]
+	... 10 common frames omitted
+Caused by: org.flywaydb.core.api.exception.FlywayValidateException: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 1
+-> Applied to database : -103768245
+-> Resolved locally    : 1629910616
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$0(Flyway.java:160) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:205) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:147) ~[flyway-core-10.10.0.jar:na]
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.3.5.jar:3.3.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802) ~[spring-beans-6.1.14.jar:6.1.14]
+	... 17 common frames omitted
+
+2026-06-11T02:44:01.423+08:00  INFO 17900 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 17900 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T02:44:01.430+08:00 DEBUG 17900 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T02:44:01.432+08:00  INFO 17900 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T02:44:03.956+08:00  INFO 17900 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T02:44:04.066+08:00  INFO 17900 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2569 ms
+2026-06-11T02:44:04.281+08:00 DEBUG 17900 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T02:44:05.374+08:00  WARN 17900 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-11T02:44:06.796+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.796+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_audit_event" 不存在
+2026-06-11T02:44:06.798+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.798+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_client_app" 不存在
+2026-06-11T02:44:06.824+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.824+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 递归删除 在表 iam_user_org上的约束fkgeo560q8kteg3c2vyuqjj0tng 
+2026-06-11T02:44:06.825+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.826+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_permission" 不存在
+2026-06-11T02:44:06.827+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.827+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_resource" 不存在
+2026-06-11T02:44:06.828+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.829+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_role" 不存在
+2026-06-11T02:44:06.829+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.829+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_session" 不存在
+2026-06-11T02:44:06.830+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.832+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_user" 不存在
+2026-06-11T02:44:06.832+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.832+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_user_credential" 不存在
+2026-06-11T02:44:06.833+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T02:44:06.833+08:00  WARN 17900 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_user_profile" 不存在
+2026-06-11T02:44:09.875+08:00  INFO 17900 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-11T02:44:09.995+08:00  INFO 17900 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-11T02:44:10.014+08:00  INFO 17900 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 9.203 seconds (process running for 10.243)
+2026-06-11T02:44:11.510+08:00  INFO 17900 --- [user-center-backend] [RMI TCP Connection(4)-192.168.1.4] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-11T02:44:11.513+08:00  INFO 17900 --- [user-center-backend] [RMI TCP Connection(4)-192.168.1.4] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-06-11T10:06:03.233+08:00  INFO 5716 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 5716 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T10:06:03.235+08:00 DEBUG 5716 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T10:06:03.235+08:00  INFO 5716 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T10:06:05.238+08:00  INFO 5716 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T10:06:05.313+08:00  INFO 5716 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2027 ms
+2026-06-11T10:06:05.469+08:00 DEBUG 5716 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T10:06:06.308+08:00  WARN 5716 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-11T10:06:09.595+08:00  INFO 5716 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-11T10:06:09.670+08:00  INFO 5716 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-11T10:06:09.683+08:00  INFO 5716 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 6.899 seconds (process running for 7.675)
+2026-06-11T10:06:10.146+08:00  INFO 5716 --- [user-center-backend] [RMI TCP Connection(3)-192.168.1.4] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-11T10:06:10.149+08:00  INFO 5716 --- [user-center-backend] [RMI TCP Connection(3)-192.168.1.4] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-06-11T11:14:08.406+08:00  INFO 21108 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 21108 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T11:14:08.409+08:00 DEBUG 21108 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T11:14:08.410+08:00  INFO 21108 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T11:14:10.265+08:00  INFO 21108 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T11:14:10.341+08:00  INFO 21108 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1878 ms
+2026-06-11T11:14:10.476+08:00 DEBUG 21108 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T11:14:11.276+08:00  WARN 21108 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-11T11:14:12.328+08:00  WARN 21108 --- [user-center-backend] [main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table if exists iam_org_unit 
+       add column role_ids_json text not null" via JDBC [错误: column "role_ids_json" of relation "iam_org_unit" contains null values]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table if exists iam_org_unit 
+       add column role_ids_json text not null" via JDBC [错误: column "role_ids_json" of relation "iam_org_unit" contains null values]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:583) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:523) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:341) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:240) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:119) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:322) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:457) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1506) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:75) ~[spring-orm-6.1.14.jar:6.1.14]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.1.14.jar:6.1.14]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409) ~[spring-orm-6.1.14.jar:6.1.14]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396) ~[spring-orm-6.1.14.jar:6.1.14]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205) ~[spring-beans-6.1.14.jar:6.1.14]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:954) ~[spring-context-6.1.14.jar:6.1.14]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625) ~[spring-context-6.1.14.jar:6.1.14]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363) ~[spring-boot-3.3.5.jar:3.3.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352) ~[spring-boot-3.3.5.jar:3.3.5]
+	at cn.scysn.UserCenterApplicationKt.main(UserCenterApplication.kt:13) ~[main/:na]
+Caused by: org.postgresql.util.PSQLException: 错误: column "role_ids_json" of relation "iam_org_unit" contains null values
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2733) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2420) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:372) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:517) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:434) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:356) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:341) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:317) ~[postgresql-42.7.4.jar:42.7.4]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:312) ~[postgresql-42.7.4.jar:42.7.4]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.5.3.Final.jar:6.5.3.Final]
+	... 37 common frames omitted
+
+2026-06-11T11:14:14.707+08:00  INFO 21108 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-11T11:14:14.795+08:00  INFO 21108 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-11T11:14:14.809+08:00  INFO 21108 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 6.839 seconds (process running for 7.569)
+2026-06-11T11:14:15.315+08:00  INFO 21108 --- [user-center-backend] [RMI TCP Connection(1)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-11T11:14:15.318+08:00  INFO 21108 --- [user-center-backend] [RMI TCP Connection(1)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-06-11T11:15:33.660+08:00  INFO 20416 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 20416 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T11:15:33.663+08:00 DEBUG 20416 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T11:15:33.664+08:00  INFO 20416 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T11:15:35.584+08:00  INFO 20416 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T11:15:35.662+08:00  INFO 20416 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1949 ms
+2026-06-11T11:15:35.818+08:00 DEBUG 20416 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T11:15:36.727+08:00  WARN 20416 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-11T11:15:40.219+08:00  INFO 20416 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-11T11:15:40.300+08:00  INFO 20416 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-11T11:15:40.315+08:00  INFO 20416 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 7.112 seconds (process running for 7.785)
+2026-06-11T11:15:41.170+08:00  INFO 20416 --- [user-center-backend] [RMI TCP Connection(4)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-11T11:15:41.173+08:00  INFO 20416 --- [user-center-backend] [RMI TCP Connection(4)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-06-11T14:14:09.118+08:00  WARN 20416 --- [user-center-backend] [http-nio-8081-exec-6] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:14:09.120+08:00 ERROR 20416 --- [user-center-backend] [http-nio-8081-exec-6] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 函数 lower(bytea) 不存在
+  建议：没有匹配指定名称和参数类型的函数. 您也许需要增加明确的类型转换.
+  位置：498
+2026-06-11T14:14:27.977+08:00  WARN 20416 --- [user-center-backend] [http-nio-8081-exec-4] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:14:27.977+08:00 ERROR 20416 --- [user-center-backend] [http-nio-8081-exec-4] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 函数 lower(bytea) 不存在
+  建议：没有匹配指定名称和参数类型的函数. 您也许需要增加明确的类型转换.
+  位置：498
+2026-06-11T14:14:45.437+08:00  WARN 20416 --- [user-center-backend] [http-nio-8081-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:14:45.438+08:00 ERROR 20416 --- [user-center-backend] [http-nio-8081-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 操作符不存在: text ~~ bytea
+  建议：没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.
+  位置：470
+2026-06-11T14:15:14.393+08:00  WARN 20416 --- [user-center-backend] [http-nio-8081-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42P18
+2026-06-11T14:15:14.394+08:00 ERROR 20416 --- [user-center-backend] [http-nio-8081-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 无法确定参数 $15 的数据类型
+2026-06-11T14:17:57.938+08:00  WARN 20416 --- [user-center-backend] [http-nio-8081-exec-10] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:17:57.938+08:00 ERROR 20416 --- [user-center-backend] [http-nio-8081-exec-10] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 函数 lower(bytea) 不存在
+  建议：没有匹配指定名称和参数类型的函数. 您也许需要增加明确的类型转换.
+  位置：498
+2026-06-11T14:25:46.953+08:00  INFO 14580 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Starting UserCenterApplicationKt using Java 17.0.16 with PID 14580 (E:\DownLoad\Idea-project\codxFile\uc\app\build\classes\kotlin\main started by 86173 in E:\DownLoad\Idea-project\codxFile\uc)
+2026-06-11T14:25:46.956+08:00 DEBUG 14580 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-06-11T14:25:46.957+08:00  INFO 14580 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : No active profile set, falling back to 1 default profile: "default"
+2026-06-11T14:25:48.888+08:00  INFO 14580 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-11T14:25:48.977+08:00  INFO 14580 --- [user-center-backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1969 ms
+2026-06-11T14:25:49.136+08:00 DEBUG 14580 --- [user-center-backend] [main] cn.scysn.common.api.TraceIdFilter        : Filter 'traceIdFilter' configured for use
+2026-06-11T14:25:49.975+08:00  WARN 14580 --- [user-center-backend] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-11T14:25:51.096+08:00  WARN 14580 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T14:25:51.097+08:00  WARN 14580 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_authorization_code" 不存在
+2026-06-11T14:25:51.113+08:00  WARN 14580 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-06-11T14:25:51.114+08:00  WARN 14580 --- [user-center-backend] [main] o.h.engine.jdbc.spi.SqlExceptionHelper   : 表 "iam_sso_session" 不存在
+2026-06-11T14:25:53.631+08:00  INFO 14580 --- [user-center-backend] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2026-06-11T14:25:53.719+08:00  INFO 14580 --- [user-center-backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-06-11T14:25:53.733+08:00  INFO 14580 --- [user-center-backend] [main] cn.scysn.UserCenterApplicationKt         : Started UserCenterApplicationKt in 7.22 seconds (process running for 7.918)
+2026-06-11T14:25:54.750+08:00  INFO 14580 --- [user-center-backend] [RMI TCP Connection(4)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-11T14:25:54.752+08:00  INFO 14580 --- [user-center-backend] [RMI TCP Connection(4)-10.80.12.3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-11T14:27:59.513+08:00  WARN 14580 --- [user-center-backend] [http-nio-8081-exec-1] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:27:59.513+08:00 ERROR 14580 --- [user-center-backend] [http-nio-8081-exec-1] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 函数 lower(bytea) 不存在
+  建议：没有匹配指定名称和参数类型的函数. 您也许需要增加明确的类型转换.
+  位置：498
+2026-06-11T14:30:57.044+08:00  WARN 14580 --- [user-center-backend] [http-nio-8081-exec-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42883
+2026-06-11T14:30:57.045+08:00 ERROR 14580 --- [user-center-backend] [http-nio-8081-exec-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : 错误: 函数 lower(bytea) 不存在
+  建议：没有匹配指定名称和参数类型的函数. 您也许需要增加明确的类型转换.
+  位置：498
