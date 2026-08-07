@@ -28,6 +28,7 @@ class UserCenterApplicationTests @Autowired constructor(
 ) {
     @LocalServerPort
     private var port: Int = 0
+    private val expectedIssuer = "http://127.0.0.1:8081"
 
     @Test
     fun `context loads and exposes jwks`() {
@@ -111,7 +112,7 @@ class UserCenterApplicationTests @Autowired constructor(
         val payload = jwtPayload(token)
         assertThat(header["alg"].asText()).isEqualTo("RS256")
         assertThat(header["kid"].asText()).startsWith("uc-")
-        assertThat(payload["iss"].asText()).isEqualTo("user-center")
+        assertThat(payload["iss"].asText()).isEqualTo(expectedIssuer)
         assertThat(payload["sub"].asText()).isEqualTo("user-001")
         assertThat(payload["aud"].asText()).isEqualTo("user-center-console")
         assertThat(payload["azp"].asText()).isEqualTo("user-center-console")
@@ -407,7 +408,7 @@ class UserCenterApplicationTests @Autowired constructor(
         assertThat(tokenBody["accessToken"].asText()).isNotBlank()
         assertThat(tokenBody["refreshToken"].asText()).isNotBlank()
         val tokenPayload = jwtPayload(tokenBody["accessToken"].asText())
-        assertThat(tokenPayload["iss"].asText()).isEqualTo("user-center")
+        assertThat(tokenPayload["iss"].asText()).isEqualTo(expectedIssuer)
         assertThat(tokenPayload["sub"].asText()).isEqualTo("user-001")
         assertThat(tokenPayload["aud"].asText()).isEqualTo("user-center-console")
         assertThat(tokenPayload["azp"].asText()).isEqualTo("user-center-console")
@@ -484,6 +485,190 @@ class UserCenterApplicationTests @Autowired constructor(
         val payload = jwtPayload(tokenResponse.body.asJson()["accessToken"].asText())
         assertThat(payload["aud"].asText()).isEqualTo("mes-web")
         assertThat(payload["azp"].asText()).isEqualTo("mes-web")
+    }
+
+    @Test
+    fun `refresh rotates token and renews sso cookie`() {
+        val loginResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/login",
+            body =
+                """
+                {
+                  "username": "admin",
+                  "password": "Admin@123456",
+                  "clientId": "user-center-console"
+                }
+                """.trimIndent()
+        )
+        assertThat(loginResponse.status).isEqualTo(HttpStatus.OK.value())
+        val loginBody = loginResponse.body.asJson()
+        val refreshToken = loginBody["data"]["refreshToken"].asText()
+        val ssoCookie = loginResponse.headers["Set-Cookie"]!!.substringBefore(";")
+
+        val refreshResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/refresh",
+            body =
+                """
+                {
+                  "clientId": "user-center-console",
+                  "refreshToken": "$refreshToken"
+                }
+                """.trimIndent(),
+            headers = mapOf(HttpHeaders.COOKIE to ssoCookie)
+        )
+
+        assertThat(refreshResponse.status).isEqualTo(HttpStatus.OK.value())
+        val refreshBody = refreshResponse.body.asJson()
+        assertThat(refreshBody["data"]["accessToken"].asText()).isNotBlank()
+        assertThat(refreshBody["data"]["refreshToken"].asText()).isNotEqualTo(refreshToken)
+        assertThat(refreshResponse.headers["Set-Cookie"]).contains("UC_SSO_SESSION=")
+    }
+
+    @Test
+    fun `invalid bearer token is not allowed to fall back to sso cookie`() {
+        val loginResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/login",
+            body =
+                """
+                {
+                  "username": "admin",
+                  "password": "Admin@123456",
+                  "clientId": "user-center-console"
+                }
+                """.trimIndent()
+        )
+        assertThat(loginResponse.status).isEqualTo(HttpStatus.OK.value())
+        val loginBody = loginResponse.body.asJson()
+        val invalidAccessToken = "${loginBody["data"]["accessToken"].asText()}x"
+        val ssoCookie = loginResponse.headers["Set-Cookie"]!!.substringBefore(";")
+
+        val meResponse = rawRequest(
+            method = "GET",
+            path = "/api/v1/auth/me",
+            headers = mapOf(
+                HttpHeaders.AUTHORIZATION to "Bearer $invalidAccessToken",
+                HttpHeaders.COOKIE to ssoCookie,
+            )
+        )
+
+        assertThat(meResponse.status).isEqualTo(HttpStatus.UNAUTHORIZED.value())
+    }
+
+    @Test
+    fun `current user requires an explicit login context`() {
+        val meResponse = rawRequest(
+            method = "GET",
+            path = "/api/v1/auth/me",
+        )
+
+        assertThat(meResponse.status).isEqualTo(HttpStatus.UNAUTHORIZED.value())
+    }
+
+    @Test
+    fun `sso cookie alone does not authenticate console api`() {
+        val loginResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/login",
+            body =
+                """
+                {
+                  "username": "admin",
+                  "password": "Admin@123456",
+                  "clientId": "user-center-console"
+                }
+                """.trimIndent()
+        )
+        assertThat(loginResponse.status).isEqualTo(HttpStatus.OK.value())
+        val ssoCookie = loginResponse.headers["Set-Cookie"]!!.substringBefore(";")
+
+        val meResponse = rawRequest(
+            method = "GET",
+            path = "/api/v1/auth/me",
+            headers = mapOf(HttpHeaders.COOKIE to ssoCookie)
+        )
+
+        assertThat(meResponse.status).isEqualTo(HttpStatus.UNAUTHORIZED.value())
+    }
+
+    @Test
+    fun `audit login events can be queried without time filters`() {
+        val response = restTemplate.getForEntity("/api/v1/audit/login-events?page=1&pageSize=20", String::class.java)
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        val body = response.body.asJson()
+        assertThat(body["code"].asText()).isEqualTo("OK")
+        assertThat(body["data"]["items"].isArray).isTrue()
+    }
+
+    @Test
+    fun `audit tabs expose management permission and token events`() {
+        val suffix = java.lang.Long.toString(System.nanoTime(), 36)
+        val roleId = restTemplate.postForEntity(
+            "/api/v1/roles",
+            jsonRequest(
+                """
+                {
+                  "appId": "user-center-console",
+                  "roleCode": "test_audit_role_$suffix",
+                  "roleName": "audit tab test role",
+                  "roleType": "app"
+                }
+                """.trimIndent()
+            ),
+            String::class.java
+        ).body.asJson()["data"]["id"].asText()
+        val userId = createTestUser("audit_tab_$suffix", "AUDIT_$suffix")
+        restTemplate.postForEntity(
+            "/api/v1/users/$userId/roles",
+            jsonRequest(
+                """
+                {
+                  "roleIds": ["$roleId"],
+                  "reason": "audit tab test"
+                }
+                """.trimIndent()
+            ),
+            String::class.java
+        )
+
+        val loginResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/login",
+            body =
+                """
+                {
+                  "username": "admin",
+                  "password": "Admin@123456",
+                  "clientId": "user-center-console"
+                }
+                """.trimIndent()
+        )
+        assertThat(loginResponse.status).isEqualTo(HttpStatus.OK.value())
+        val refreshToken = loginResponse.body.asJson()["data"]["refreshToken"].asText()
+        val ssoCookie = loginResponse.headers["Set-Cookie"]!!.substringBefore(";")
+        val refreshResponse = rawRequest(
+            method = "POST",
+            path = "/api/v1/auth/refresh",
+            body =
+                """
+                {
+                  "clientId": "user-center-console",
+                  "refreshToken": "$refreshToken"
+                }
+                """.trimIndent(),
+            headers = mapOf(HttpHeaders.COOKIE to ssoCookie)
+        )
+        assertThat(refreshResponse.status).isEqualTo(HttpStatus.OK.value())
+
+        assertThat(auditEventTypes("/api/v1/audit/admin-events?page=1&pageSize=50"))
+            .contains("USER_CREATED")
+        assertThat(auditEventTypes("/api/v1/audit/permission-events?page=1&pageSize=50"))
+            .contains("ROLE_CREATED", "USER_ROLES_GRANTED")
+        assertThat(auditEventTypes("/api/v1/audit/token-events?page=1&pageSize=50"))
+            .contains("TOKEN_REFRESHED")
     }
 
     @Test
@@ -592,13 +777,17 @@ class UserCenterApplicationTests @Autowired constructor(
                 """.trimIndent()
         )
         assertThat(userLoginResponse.status).isEqualTo(HttpStatus.OK.value())
+        val userAccessToken = userLoginResponse.body.asJson()["data"]["accessToken"].asText()
         val userSsoCookie = userLoginResponse.headers["Set-Cookie"]!!.substringBefore(";")
 
         val logoutAllResponse = rawRequest(
             method = "POST",
             path = "/api/v1/auth/logout-all",
             body = """{"reason":"test"}""",
-            headers = mapOf(HttpHeaders.COOKIE to userSsoCookie)
+            headers = mapOf(
+                HttpHeaders.AUTHORIZATION to "Bearer $userAccessToken",
+                HttpHeaders.COOKIE to userSsoCookie,
+            )
         )
         assertThat(logoutAllResponse.status).isEqualTo(HttpStatus.OK.value())
 
@@ -699,6 +888,14 @@ class UserCenterApplicationTests @Autowired constructor(
             ),
             String::class.java
         ).body.asJson()["data"]["id"].asText()
+    }
+
+    private fun auditEventTypes(path: String): List<String> {
+        val response = restTemplate.getForEntity(path, String::class.java)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        val body = response.body.asJson()
+        assertThat(body["code"].asText()).isEqualTo("OK")
+        return body["data"]["items"].map { it["eventType"].asText() }
     }
 
     private fun jsonRequest(json: String): HttpEntity<String> {

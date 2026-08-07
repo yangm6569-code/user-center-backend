@@ -3,24 +3,41 @@ package cn.scysn.iam.interfaces
 import cn.scysn.common.api.PageResponse
 import cn.scysn.iam.application.BindOrgUnitRolesCommand
 import cn.scysn.iam.application.BindRolePermissionsCommand
+import cn.scysn.iam.application.ApiPermissionRule
+import cn.scysn.iam.application.ConfigureDataScopeCommand
+import cn.scysn.iam.application.ConfigureFieldPermissionsCommand
+import cn.scysn.iam.application.CreateBusinessDomainCommand
 import cn.scysn.iam.application.CreateClientAppCommand
 import cn.scysn.iam.application.CreateOrgUnitCommand
 import cn.scysn.iam.application.CreatePermissionCommand
 import cn.scysn.iam.application.CreateResourceCommand
 import cn.scysn.iam.application.CreateRoleCommand
+import cn.scysn.iam.application.CreateSystemDomainCommand
 import cn.scysn.iam.application.CreateUserCommand
 import cn.scysn.iam.application.ExportAuditCommand
+import cn.scysn.iam.application.FieldPermissionEntry
 import cn.scysn.iam.application.FreezeUserCommand
 import cn.scysn.iam.application.GrantUserRolesCommand
+import cn.scysn.iam.application.ImportDataScopeEntry
+import cn.scysn.iam.application.ImportPermissionModelCommand
+import cn.scysn.iam.application.ImportRoleEntry
 import cn.scysn.iam.application.ImportUserItemCommand
 import cn.scysn.iam.application.ImportUsersCommand
+import cn.scysn.iam.application.OidcClientConfigCommand
 import cn.scysn.iam.application.RevokeUserCommand
 import cn.scysn.iam.application.RotateSecretCommand
+import cn.scysn.iam.application.SyncBusinessDomainEntry
+import cn.scysn.iam.application.SyncFieldEntry
+import cn.scysn.iam.application.SyncMetadataCommand
+import cn.scysn.iam.application.SyncResourceEntry
 import cn.scysn.iam.application.TokenPolicyCommand
+import cn.scysn.iam.application.UpdateBusinessDomainCommand
 import cn.scysn.iam.application.UpdateClientAppCommand
 import cn.scysn.iam.application.UpdateOrgUnitCommand
+import cn.scysn.iam.application.UpdatePermissionCommand
 import cn.scysn.iam.application.UpdateResourceCommand
 import cn.scysn.iam.application.UpdateRoleCommand
+import cn.scysn.iam.application.UpdateSystemDomainCommand
 import cn.scysn.iam.application.UpdateUserCommand
 import cn.scysn.iam.application.CreateClientAppResult
 import cn.scysn.iam.application.ExportTaskResult
@@ -29,12 +46,18 @@ import cn.scysn.iam.application.OrgUnitTreeNode
 import cn.scysn.iam.domain.audit.AuditEvent
 import cn.scysn.iam.domain.auth.CurrentUserInfo
 import cn.scysn.iam.domain.auth.LoginSession
+import cn.scysn.iam.domain.authorization.BusinessDomain
+import cn.scysn.iam.domain.authorization.DataScopeConfig
 import cn.scysn.iam.domain.authorization.EffectivePermission
+import cn.scysn.iam.domain.authorization.FieldPermission
+import cn.scysn.iam.domain.authorization.FieldPolicy
 import cn.scysn.iam.domain.authorization.Permission
 import cn.scysn.iam.domain.authorization.Resource
 import cn.scysn.iam.domain.authorization.Role
 import cn.scysn.iam.domain.clientapp.ClientApp
+import cn.scysn.iam.domain.clientapp.OidcClientConfig
 import cn.scysn.iam.domain.clientapp.SecretRotation
+import cn.scysn.iam.domain.system.SystemDomain
 import cn.scysn.iam.domain.identity.User
 import cn.scysn.iam.domain.organization.OrgUnit
 import cn.scysn.iam.domain.shared.Attributes
@@ -210,6 +233,7 @@ data class AddOrgUnitUsersRequest(
 )
 
 data class CreateRoleRequest(
+    val domainId: String? = null,
     val appId: String? = null,
     @field:NotBlank val roleCode: String,
     @field:NotBlank val roleName: String,
@@ -217,7 +241,7 @@ data class CreateRoleRequest(
     val description: String? = null,
     val enabled: Boolean = true,
 ) {
-    fun toCommand(): CreateRoleCommand = CreateRoleCommand(appId, roleCode, roleName, roleType, description, enabled)
+    fun toCommand(): CreateRoleCommand = CreateRoleCommand(domainId, appId, roleCode, roleName, roleType, description, enabled)
 }
 
 data class UpdateRoleRequest(
@@ -237,7 +261,9 @@ data class BindRolePermissionsRequest(
 }
 
 data class CreateResourceRequest(
+    val domainId: String? = null,
     @field:NotBlank val appId: String,
+    val businessDomainId: String? = null,
     val parentId: String? = null,
     @field:NotBlank val resourceCode: String,
     @field:NotBlank val resourceName: String,
@@ -248,7 +274,7 @@ data class CreateResourceRequest(
     val attributes: Attributes = emptyMap(),
 ) {
     fun toCommand(): CreateResourceCommand = CreateResourceCommand(
-        appId, parentId, resourceCode, resourceName, resourceType, path, method, sortOrder, attributes
+        domainId, appId, businessDomainId, parentId, resourceCode, resourceName, resourceType, path, method, sortOrder, attributes
     )
 }
 
@@ -264,14 +290,24 @@ data class UpdateResourceRequest(
 }
 
 data class CreatePermissionRequest(
+    val domainId: String? = null,
     @field:NotBlank val appId: String,
+    val businessDomainId: String? = null,
     val resourceId: String? = null,
     @field:NotBlank val permissionCode: String,
     @field:NotBlank val permissionName: String,
     @field:NotBlank val action: String,
     val description: String? = null,
 ) {
-    fun toCommand(): CreatePermissionCommand = CreatePermissionCommand(appId, resourceId, permissionCode, permissionName, action, description)
+    fun toCommand(): CreatePermissionCommand = CreatePermissionCommand(domainId, appId, businessDomainId, resourceId, permissionCode, permissionName, action, description)
+}
+
+data class UpdatePermissionRequest(
+    val permissionName: String? = null,
+    val action: String? = null,
+    val description: String? = null,
+) {
+    fun toCommand(): UpdatePermissionCommand = UpdatePermissionCommand(permissionName, action, description)
 }
 
 data class TokenPolicyRequest(
@@ -291,6 +327,7 @@ data class TokenPolicyRequest(
 }
 
 data class CreateClientAppRequest(
+    @field:NotBlank val domainId: String = "user-center",
     @field:NotBlank val clientId: String,
     @field:NotBlank val name: String,
     @field:NotBlank val appType: String,
@@ -300,22 +337,56 @@ data class CreateClientAppRequest(
     @field:Valid val tokenPolicy: TokenPolicyRequest = TokenPolicyRequest(),
 ) {
     fun toCommand(): CreateClientAppCommand = CreateClientAppCommand(
-        clientId, name, appType, ownerDept, redirectUris, logoutUris, tokenPolicy.toCommand()
+        domainId, clientId, name, appType, ownerDept, redirectUris, logoutUris, tokenPolicy.toCommand()
     )
 }
 
 data class UpdateClientAppRequest(
     val name: String? = null,
+    val domainId: String? = null,
     val appType: String? = null,
     val ownerDept: String? = null,
     val redirectUris: Set<String>? = null,
     val logoutUris: Set<String>? = null,
     @field:Valid val tokenPolicy: TokenPolicyRequest? = null,
     val status: String? = null,
+    @field:Valid val oidcConfig: OidcClientConfigRequest? = null,
 ) {
     fun toCommand(): UpdateClientAppCommand = UpdateClientAppCommand(
-        name, appType, ownerDept, redirectUris, logoutUris, tokenPolicy?.toCommand(), status
+        name, domainId, appType, ownerDept, redirectUris, logoutUris, tokenPolicy?.toCommand(), status, oidcConfig?.toCommand()
     )
+}
+
+data class OidcClientConfigRequest(
+    val issuer: String? = null,
+    val discoveryUrl: String? = null,
+    val authorizeUrl: String? = null,
+    val tokenUrl: String? = null,
+    val userInfoUrl: String? = null,
+    val jwksUrl: String? = null,
+    val scope: String? = null,
+    val responseType: String? = null,
+    val grantType: String? = null,
+) {
+    fun toCommand(): OidcClientConfigCommand = OidcClientConfigCommand(
+        issuer, discoveryUrl, authorizeUrl, tokenUrl, userInfoUrl, jwksUrl, scope, responseType, grantType
+    )
+}
+
+data class CreateSystemDomainRequest(
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    val description: String? = null,
+) {
+    fun toCommand(): CreateSystemDomainCommand = CreateSystemDomainCommand(code, name, description)
+}
+
+data class UpdateSystemDomainRequest(
+    val name: String? = null,
+    val description: String? = null,
+    val enabled: Boolean? = null,
+) {
+    fun toCommand(): UpdateSystemDomainCommand = UpdateSystemDomainCommand(name, description, enabled)
 }
 
 data class RotateSecretRequest(
@@ -424,6 +495,7 @@ data class OrgUnitResponse(
 
 data class RoleResponse(
     val id: String,
+    val domainId: String?,
     val appId: String?,
     val roleCode: String,
     val roleName: String,
@@ -435,7 +507,9 @@ data class RoleResponse(
 
 data class ResourceResponse(
     val id: String,
+    val domainId: String,
     val appId: String,
+    val businessDomainId: String?,
     val parentId: String?,
     val resourceCode: String,
     val resourceName: String,
@@ -449,7 +523,9 @@ data class ResourceResponse(
 
 data class PermissionResponse(
     val id: String,
+    val domainId: String,
     val appId: String,
+    val businessDomainId: String?,
     val resourceId: String?,
     val permissionCode: String,
     val permissionName: String,
@@ -458,8 +534,21 @@ data class PermissionResponse(
     val enabled: Boolean,
 )
 
+data class ApiPermissionRuleResponse(
+    val appId: String,
+    val resourceId: String,
+    val resourceCode: String,
+    val resourceName: String,
+    val method: String,
+    val path: String,
+    val permissionId: String,
+    val permissionCode: String,
+    val action: String,
+)
+
 data class ClientAppResponse(
     val id: String,
+    val domainId: String,
     val clientId: String,
     val name: String,
     val appType: String,
@@ -469,6 +558,27 @@ data class ClientAppResponse(
     val logoutUris: Set<String>,
     val tokenPolicy: TokenPolicyRequest,
     val secretVersion: Int,
+    val oidcConfig: OidcClientConfigResponse,
+)
+
+data class OidcClientConfigResponse(
+    val issuer: String?,
+    val discoveryUrl: String?,
+    val authorizeUrl: String?,
+    val tokenUrl: String?,
+    val userInfoUrl: String?,
+    val jwksUrl: String?,
+    val scope: String,
+    val responseType: String,
+    val grantType: String,
+)
+
+data class SystemDomainResponse(
+    val id: String,
+    val code: String,
+    val name: String,
+    val description: String?,
+    val enabled: Boolean,
 )
 
 data class CreateClientAppResponse(
@@ -553,18 +663,31 @@ fun LoginSession.toResponse(): SessionResponse = SessionResponse(
 
 fun OrgUnit.toResponse(): OrgUnitResponse = OrgUnitResponse(id, parentId, code, name, type, enabled, sortOrder, roleIds, attributes)
 
-fun Role.toResponse(): RoleResponse = RoleResponse(id, appId, roleCode, roleName, roleType.code, description, enabled, permissionIds)
+fun Role.toResponse(): RoleResponse = RoleResponse(id, domainId, appId, roleCode, roleName, roleType.code, description, enabled, permissionIds)
 
 fun Resource.toResponse(): ResourceResponse = ResourceResponse(
-    id, appId, parentId, resourceCode, resourceName, resourceType.code, path, method, sortOrder, enabled, attributes
+    id, domainId, appId, businessDomainId, parentId, resourceCode, resourceName, resourceType.code, path, method, sortOrder, enabled, attributes
 )
 
 fun Permission.toResponse(): PermissionResponse = PermissionResponse(
-    id, appId, resourceId, permissionCode, permissionName, action, description, enabled
+    id, domainId, appId, businessDomainId, resourceId, permissionCode, permissionName, action, description, enabled
+)
+
+fun ApiPermissionRule.toResponse(): ApiPermissionRuleResponse = ApiPermissionRuleResponse(
+    appId = appId,
+    resourceId = resourceId,
+    resourceCode = resourceCode,
+    resourceName = resourceName,
+    method = method,
+    path = path,
+    permissionId = permissionId,
+    permissionCode = permissionCode,
+    action = action,
 )
 
 fun ClientApp.toResponse(): ClientAppResponse = ClientAppResponse(
     id = id,
+    domainId = domainId,
     clientId = clientId,
     name = name,
     appType = appType,
@@ -580,7 +703,22 @@ fun ClientApp.toResponse(): ClientAppResponse = ClientAppResponse(
         ssoSessionMaxSeconds = tokenPolicy.ssoSessionMaxSeconds
     ),
     secretVersion = secretVersion,
+    oidcConfig = oidcConfig.toResponse(),
 )
+
+fun OidcClientConfig.toResponse(): OidcClientConfigResponse = OidcClientConfigResponse(
+    issuer = issuer,
+    discoveryUrl = discoveryUrl,
+    authorizeUrl = authorizeUrl,
+    tokenUrl = tokenUrl,
+    userInfoUrl = userInfoUrl,
+    jwksUrl = jwksUrl,
+    scope = scope,
+    responseType = responseType,
+    grantType = grantType,
+)
+
+fun SystemDomain.toResponse(): SystemDomainResponse = SystemDomainResponse(id, code, name, description, enabled)
 
 fun CreateClientAppResult.toResponse(): CreateClientAppResponse = CreateClientAppResponse(
     id = app.id,
@@ -632,4 +770,201 @@ fun CurrentUserInfo.toUserDetailResponse(): UserDetailResponse = UserDetailRespo
 
 fun <T, R> PageResponse<T>.mapItems(transform: (T) -> R): PageResponse<R> {
     return PageResponse(items.map(transform), page, pageSize, total, totalPages)
+}
+
+// --- Business Domain DTOs ---
+
+data class CreateBusinessDomainRequest(
+    @field:NotBlank val domainId: String,
+    @field:NotBlank val appId: String,
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    val description: String? = null,
+) {
+    fun toCommand(): CreateBusinessDomainCommand = CreateBusinessDomainCommand(domainId, appId, code, name, description)
+}
+
+data class UpdateBusinessDomainRequest(
+    val name: String? = null,
+    val description: String? = null,
+    val enabled: Boolean? = null,
+) {
+    fun toCommand(): UpdateBusinessDomainCommand = UpdateBusinessDomainCommand(name, description, enabled)
+}
+
+data class BusinessDomainResponse(
+    val id: String,
+    val domainId: String,
+    val appId: String,
+    val code: String,
+    val name: String,
+    val description: String?,
+    val enabled: Boolean,
+    val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime,
+)
+
+fun BusinessDomain.toResponse(): BusinessDomainResponse = BusinessDomainResponse(
+    id, domainId, appId, code, name, description, enabled, createdAt, updatedAt
+)
+
+// --- Field Permission DTOs ---
+
+data class FieldPermissionEntryRequest(
+    @field:NotBlank val fieldCode: String,
+    val fieldName: String? = null,
+    @field:NotBlank val permissionType: String,
+)
+
+data class ConfigureFieldPermissionsRequest(
+    @field:NotBlank val roleId: String,
+    @field:NotEmpty val fields: List<FieldPermissionEntryRequest>,
+    @field:NotBlank val reason: String,
+) {
+    fun toCommand(): ConfigureFieldPermissionsCommand = ConfigureFieldPermissionsCommand(
+        roleId = roleId,
+        fields = fields.map { FieldPermissionEntry(it.fieldCode, it.fieldName, it.permissionType) },
+        reason = reason,
+    )
+}
+
+data class FieldPermissionResponse(
+    val id: String,
+    val businessDomainId: String,
+    val roleId: String,
+    val fieldCode: String,
+    val fieldName: String?,
+    val permissionType: String,
+    val enabled: Boolean,
+)
+
+data class FieldPolicyResponse(
+    val visible: Set<String>,
+    val hidden: Set<String>,
+    val masked: Set<String>,
+    val readonly: Set<String>,
+)
+
+fun FieldPermission.toResponse(): FieldPermissionResponse = FieldPermissionResponse(
+    id, businessDomainId, roleId, fieldCode, fieldName, permissionType.code, enabled
+)
+
+// --- Data Scope DTOs ---
+
+data class ConfigureDataScopeRequest(
+    @field:NotBlank val roleId: String,
+    @field:NotBlank val scopeType: String,
+    val scopeValue: Set<String> = emptySet(),
+    @field:NotBlank val reason: String,
+) {
+    fun toCommand(): ConfigureDataScopeCommand = ConfigureDataScopeCommand(roleId, scopeType, scopeValue, reason)
+}
+
+data class DataScopeConfigResponse(
+    val id: String,
+    val businessDomainId: String,
+    val roleId: String,
+    val scopeType: String,
+    val scopeValue: Set<String>,
+    val enabled: Boolean,
+)
+
+fun DataScopeConfig.toResponse(): DataScopeConfigResponse = DataScopeConfigResponse(
+    id, businessDomainId, roleId, scopeType, scopeValue, enabled
+)
+
+// --- Metadata Sync DTOs ---
+
+data class SyncFieldEntryRequest(
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    @field:NotBlank val type: String,
+    val sensitive: Boolean = false,
+)
+
+data class SyncResourceEntryRequest(
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    @field:NotBlank val type: String,
+    val parentCode: String? = null,
+    val path: String? = null,
+    val method: String? = null,
+    val sortOrder: Int = 0,
+    val operations: List<String>? = null,
+    val fields: List<SyncFieldEntryRequest>? = null,
+)
+
+data class SyncBusinessDomainEntryRequest(
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    val description: String? = null,
+    val resources: List<SyncResourceEntryRequest>? = null,
+)
+
+data class SyncMetadataRequest(
+    @field:NotBlank val appId: String,
+    @field:NotEmpty val businessDomains: List<SyncBusinessDomainEntryRequest>,
+) {
+    fun toCommand(): SyncMetadataCommand = SyncMetadataCommand(
+        appId = appId,
+        businessDomains = businessDomains.map { bd ->
+            SyncBusinessDomainEntry(
+                code = bd.code,
+                name = bd.name,
+                description = bd.description,
+                resources = bd.resources?.map { res ->
+                    SyncResourceEntry(
+                        code = res.code,
+                        name = res.name,
+                        type = res.type,
+                        parentCode = res.parentCode,
+                        path = res.path,
+                        method = res.method,
+                        sortOrder = res.sortOrder,
+                        operations = res.operations,
+                        fields = res.fields?.map { SyncFieldEntry(it.code, it.name, it.type, it.sensitive) },
+                    )
+                },
+            )
+        },
+    )
+}
+
+// --- Permission Model Import DTOs ---
+
+data class ImportDataScopeEntryRequest(
+    @field:NotBlank val scopeType: String,
+    val scopeValue: Set<String> = emptySet(),
+)
+
+data class ImportRoleEntryRequest(
+    @field:NotBlank val roleCode: String,
+    @field:NotBlank val roleName: String,
+    @field:NotBlank val roleType: String,
+    val permissionCodes: Set<String> = emptySet(),
+    val fieldPermissions: Map<String, String>? = null,
+    val dataScope: ImportDataScopeEntryRequest? = null,
+)
+
+data class ImportPermissionModelRequest(
+    @field:NotBlank val appId: String,
+    @field:NotBlank val sourceSystem: String,
+    @field:NotEmpty val roles: List<ImportRoleEntryRequest>,
+    @field:NotBlank val reason: String,
+) {
+    fun toCommand(): ImportPermissionModelCommand = ImportPermissionModelCommand(
+        appId = appId,
+        sourceSystem = sourceSystem,
+        roles = roles.map { r ->
+            ImportRoleEntry(
+                roleCode = r.roleCode,
+                roleName = r.roleName,
+                roleType = r.roleType,
+                permissionCodes = r.permissionCodes,
+                fieldPermissions = r.fieldPermissions,
+                dataScope = r.dataScope?.let { ImportDataScopeEntry(it.scopeType, it.scopeValue) },
+            )
+        },
+        reason = reason,
+    )
 }

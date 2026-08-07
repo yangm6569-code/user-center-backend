@@ -18,7 +18,8 @@ enum class ResourceType(val code: String) {
     BUTTON("button"),
     API("api"),
     REPORT("report"),
-    DATA("data");
+    DATA("data"),
+    FIELD("field");
 }
 
 data class DataScope(
@@ -28,6 +29,7 @@ data class DataScope(
 
 class Role private constructor(
     val id: String,
+    domainId: String?,
     appId: String?,
     roleCode: String,
     roleName: String,
@@ -38,6 +40,8 @@ class Role private constructor(
     val createdAt: OffsetDateTime,
     updatedAt: OffsetDateTime,
 ) {
+    var domainId: String? = domainId
+        private set
     var appId: String? = appId
         private set
     var roleCode: String = roleCode
@@ -61,6 +65,7 @@ class Role private constructor(
 
     companion object {
         fun create(
+            domainId: String?,
             appId: String?,
             roleCode: String,
             roleName: String,
@@ -68,9 +73,11 @@ class Role private constructor(
             description: String?,
             enabled: Boolean,
         ): Role {
-            require(roleType != RoleType.APP || !appId.isNullOrBlank()) { "应用角色必须指定 appId" }
+            require(roleType != RoleType.PLATFORM || appId.isNullOrBlank()) { "平台角色不能绑定 appId" }
+            require(roleType != RoleType.APP || !domainId.isNullOrBlank() || !appId.isNullOrBlank()) { "应用角色必须指定系统域或 appId" }
             return Role(
                 id = newId("role"),
+                domainId = domainId ?: appId,
                 appId = appId,
                 roleCode = roleCode,
                 roleName = roleName,
@@ -85,6 +92,7 @@ class Role private constructor(
 
         fun restore(
             id: String,
+            domainId: String?,
             appId: String?,
             roleCode: String,
             roleName: String,
@@ -97,6 +105,7 @@ class Role private constructor(
         ): Role {
             return Role(
                 id = id,
+                domainId = domainId ?: appId,
                 appId = appId,
                 roleCode = roleCode,
                 roleName = roleName,
@@ -137,7 +146,9 @@ class Role private constructor(
 
 class Resource private constructor(
     val id: String,
+    domainId: String,
     appId: String,
+    val businessDomainId: String?,
     parentId: String?,
     resourceCode: String,
     resourceName: String,
@@ -150,6 +161,8 @@ class Resource private constructor(
     val createdAt: OffsetDateTime,
     updatedAt: OffsetDateTime,
 ) {
+    var domainId: String = domainId
+        private set
     var appId: String = appId
         private set
     var parentId: String? = parentId
@@ -179,7 +192,9 @@ class Resource private constructor(
 
     companion object {
         fun create(
+            domainId: String?,
             appId: String,
+            businessDomainId: String? = null,
             parentId: String?,
             resourceCode: String,
             resourceName: String,
@@ -192,7 +207,9 @@ class Resource private constructor(
             requireCode(appId, "应用ID")
             return Resource(
                 id = newId("res"),
+                domainId = domainId ?: appId,
                 appId = appId,
+                businessDomainId = businessDomainId,
                 parentId = parentId,
                 resourceCode = resourceCode,
                 resourceName = resourceName,
@@ -209,7 +226,9 @@ class Resource private constructor(
 
         fun restore(
             id: String,
+            domainId: String?,
             appId: String,
+            businessDomainId: String?,
             parentId: String?,
             resourceCode: String,
             resourceName: String,
@@ -224,7 +243,9 @@ class Resource private constructor(
         ): Resource {
             return Resource(
                 id = id,
+                domainId = domainId ?: appId,
                 appId = appId,
+                businessDomainId = businessDomainId,
                 parentId = parentId,
                 resourceCode = resourceCode,
                 resourceName = resourceName,
@@ -240,10 +261,11 @@ class Resource private constructor(
         }
     }
 
-    fun update(resourceName: String?, path: String?, method: String?, sortOrder: Int?, enabled: Boolean?, attributes: Attributes?) {
+    fun update(resourceName: String?, resourceType: ResourceType?, path: String?, method: String?, sortOrder: Int?, enabled: Boolean?, attributes: Attributes?) {
         val nextName = resourceName ?: this.resourceName
         validate(resourceCode, nextName)
         this.resourceName = nextName
+        this.resourceType = resourceType ?: this.resourceType
         this.path = path ?: this.path
         this.method = method ?: this.method
         this.sortOrder = sortOrder ?: this.sortOrder
@@ -259,7 +281,9 @@ class Resource private constructor(
 
 class Permission private constructor(
     val id: String,
+    domainId: String,
     appId: String,
+    val businessDomainId: String?,
     resourceId: String?,
     permissionCode: String,
     permissionName: String,
@@ -269,6 +293,8 @@ class Permission private constructor(
     val createdAt: OffsetDateTime,
     updatedAt: OffsetDateTime,
 ) {
+    var domainId: String = domainId
+        private set
     var appId: String = appId
         private set
     var resourceId: String? = resourceId
@@ -291,9 +317,24 @@ class Permission private constructor(
         requireCode(action, "权限动作")
     }
 
+    fun update(permissionName: String?, action: String?, description: String?) {
+        val nextName = permissionName ?: this.permissionName
+        validate(permissionCode, nextName)
+        this.permissionName = nextName
+        this.action = action ?: this.action
+        this.description = description ?: this.description
+        touch()
+    }
+
+    private fun touch() {
+        updatedAt = now()
+    }
+
     companion object {
         fun create(
+            domainId: String?,
             appId: String,
+            businessDomainId: String? = null,
             resourceId: String?,
             permissionCode: String,
             permissionName: String,
@@ -303,7 +344,9 @@ class Permission private constructor(
             requireCode(appId, "应用ID")
             return Permission(
                 id = newId("perm"),
+                domainId = domainId ?: appId,
                 appId = appId,
+                businessDomainId = businessDomainId,
                 resourceId = resourceId,
                 permissionCode = permissionCode,
                 permissionName = permissionName,
@@ -317,7 +360,9 @@ class Permission private constructor(
 
         fun restore(
             id: String,
+            domainId: String?,
             appId: String,
+            businessDomainId: String?,
             resourceId: String?,
             permissionCode: String,
             permissionName: String,
@@ -329,7 +374,9 @@ class Permission private constructor(
         ): Permission {
             return Permission(
                 id = id,
+                domainId = domainId ?: appId,
                 appId = appId,
+                businessDomainId = businessDomainId,
                 resourceId = resourceId,
                 permissionCode = permissionCode,
                 permissionName = permissionName,
@@ -353,6 +400,202 @@ data class EffectivePermission(
     val buttons: Map<String, List<String>>,
     val dataScopes: List<DataScope>,
 )
+
+data class FieldPolicy(
+    val visible: Set<String>,
+    val hidden: Set<String>,
+    val masked: Set<String>,
+    val readonly: Set<String>,
+)
+
+enum class FieldPermissionType(val code: String) {
+    VISIBLE("visible"),
+    READONLY("readonly"),
+    HIDDEN("hidden"),
+    MASKED("masked");
+}
+
+class BusinessDomain private constructor(
+    val id: String,
+    val domainId: String,
+    val appId: String,
+    var code: String,
+    var name: String,
+    var description: String?,
+    var enabled: Boolean,
+    val createdAt: OffsetDateTime,
+    var updatedAt: OffsetDateTime,
+) {
+    init {
+        validate(code, name)
+        requireCode(appId, "应用ID")
+        requireCode(domainId, "系统域ID")
+    }
+
+    companion object {
+        fun create(
+            domainId: String,
+            appId: String,
+            code: String,
+            name: String,
+            description: String?,
+        ): BusinessDomain {
+            return BusinessDomain(
+                id = newId("bd"),
+                domainId = domainId,
+                appId = appId,
+                code = code,
+                name = name,
+                description = description,
+                enabled = true,
+                createdAt = now(),
+                updatedAt = now()
+            )
+        }
+
+        fun restore(
+            id: String,
+            domainId: String,
+            appId: String,
+            code: String,
+            name: String,
+            description: String?,
+            enabled: Boolean,
+            createdAt: OffsetDateTime,
+            updatedAt: OffsetDateTime,
+        ): BusinessDomain {
+            return BusinessDomain(id, domainId, appId, code, name, description, enabled, createdAt, updatedAt)
+        }
+    }
+
+    fun update(name: String?, description: String?, enabled: Boolean?) {
+        val nextName = name ?: this.name
+        validate(code, nextName)
+        this.name = nextName
+        this.description = description ?: this.description
+        this.enabled = enabled ?: this.enabled
+        touch()
+    }
+
+    private fun touch() {
+        updatedAt = now()
+    }
+}
+
+class FieldPermission private constructor(
+    val id: String,
+    val businessDomainId: String,
+    val roleId: String,
+    var fieldCode: String,
+    var fieldName: String?,
+    var permissionType: FieldPermissionType,
+    var enabled: Boolean,
+    val createdAt: OffsetDateTime,
+    var updatedAt: OffsetDateTime,
+) {
+    init {
+        requireCode(fieldCode, "字段编码")
+    }
+
+    companion object {
+        fun create(
+            businessDomainId: String,
+            roleId: String,
+            fieldCode: String,
+            fieldName: String?,
+            permissionType: FieldPermissionType,
+        ): FieldPermission {
+            return FieldPermission(
+                id = newId("fp"),
+                businessDomainId = businessDomainId,
+                roleId = roleId,
+                fieldCode = fieldCode,
+                fieldName = fieldName,
+                permissionType = permissionType,
+                enabled = true,
+                createdAt = now(),
+                updatedAt = now()
+            )
+        }
+
+        fun restore(
+            id: String,
+            businessDomainId: String,
+            roleId: String,
+            fieldCode: String,
+            fieldName: String?,
+            permissionType: FieldPermissionType,
+            enabled: Boolean,
+            createdAt: OffsetDateTime,
+            updatedAt: OffsetDateTime,
+        ): FieldPermission {
+            return FieldPermission(id, businessDomainId, roleId, fieldCode, fieldName, permissionType, enabled, createdAt, updatedAt)
+        }
+    }
+
+    fun updateType(type: FieldPermissionType) {
+        this.permissionType = type
+        touch()
+    }
+
+    private fun touch() {
+        updatedAt = now()
+    }
+}
+
+class DataScopeConfig private constructor(
+    val id: String,
+    val businessDomainId: String,
+    val roleId: String,
+    var scopeType: String,
+    var scopeValue: Set<String>,
+    var enabled: Boolean,
+    val createdAt: OffsetDateTime,
+    var updatedAt: OffsetDateTime,
+) {
+    companion object {
+        fun create(
+            businessDomainId: String,
+            roleId: String,
+            scopeType: String,
+            scopeValue: Set<String>,
+        ): DataScopeConfig {
+            return DataScopeConfig(
+                id = newId("ds"),
+                businessDomainId = businessDomainId,
+                roleId = roleId,
+                scopeType = scopeType,
+                scopeValue = scopeValue,
+                enabled = true,
+                createdAt = now(),
+                updatedAt = now()
+            )
+        }
+
+        fun restore(
+            id: String,
+            businessDomainId: String,
+            roleId: String,
+            scopeType: String,
+            scopeValue: Set<String>,
+            enabled: Boolean,
+            createdAt: OffsetDateTime,
+            updatedAt: OffsetDateTime,
+        ): DataScopeConfig {
+            return DataScopeConfig(id, businessDomainId, roleId, scopeType, scopeValue, enabled, createdAt, updatedAt)
+        }
+    }
+
+    fun update(scopeType: String?, scopeValue: Set<String>?) {
+        this.scopeType = scopeType ?: this.scopeType
+        this.scopeValue = scopeValue ?: this.scopeValue
+        touch()
+    }
+
+    private fun touch() {
+        updatedAt = now()
+    }
+}
 
 data class MenuNode(
     val code: String,

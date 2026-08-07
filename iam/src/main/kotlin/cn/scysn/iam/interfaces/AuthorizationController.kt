@@ -29,6 +29,7 @@ class AuthorizationController(
     @GetMapping("/roles")
     @Operation(summary = "分页查询角色", description = "按应用、角色类型和关键字分页查询角色列表。")
     fun roles(
+        @Parameter(description = "系统域 ID") @RequestParam(required = false) domainId: String?,
         @Parameter(description = "应用 ID，不传则查询全部应用范围角色") @RequestParam(required = false) appId: String?,
         @Parameter(description = "角色类型，如 platform、app") @RequestParam(required = false) roleType: String?,
         @Parameter(description = "关键字，匹配角色编码或名称") @RequestParam(required = false) keyword: String?,
@@ -36,7 +37,7 @@ class AuthorizationController(
         @Parameter(description = "每页条数") @RequestParam(defaultValue = "20") pageSize: Int,
     ): ApiResponse<PageResponse<RoleResponse>> {
         return ApiResponse.ok(
-            authorizationApplicationService.roles(appId, roleType, keyword, PageQuery(page, pageSize))
+            authorizationApplicationService.roles(domainId, appId, roleType, keyword, PageQuery(page, pageSize))
                 .mapItems { it.toResponse() }
         )
     }
@@ -82,11 +83,13 @@ class AuthorizationController(
     @GetMapping("/resources")
     @Operation(summary = "查询资源列表", description = "按应用、资源类型和关键字查询菜单、页面、按钮、API 等资源。")
     fun resources(
+        @Parameter(description = "系统域 ID") @RequestParam(required = false) domainId: String?,
         @Parameter(description = "应用 ID") @RequestParam(required = false) appId: String?,
+        @Parameter(description = "业务域 ID") @RequestParam(required = false) businessDomainId: String?,
         @Parameter(description = "资源类型，如 menu、page、button、api、report、data") @RequestParam(required = false) resourceType: String?,
         @Parameter(description = "关键字，匹配资源编码或名称") @RequestParam(required = false) keyword: String?,
     ): ApiResponse<List<ResourceResponse>> {
-        return ApiResponse.ok(authorizationApplicationService.resources(appId, resourceType, keyword).map { it.toResponse() })
+        return ApiResponse.ok(authorizationApplicationService.resources(domainId, appId, businessDomainId, resourceType, keyword).map { it.toResponse() })
     }
 
     @PostMapping("/resources")
@@ -101,20 +104,42 @@ class AuthorizationController(
         return ApiResponse.ok(authorizationApplicationService.updateResource(id, request.toCommand()).toResponse())
     }
 
+    @DeleteMapping("/resources/{id}")
+    @Operation(summary = "删除资源", description = "根据资源 ID 删除资源。")
+    fun deleteResource(@PathVariable id: String): ResponseEntity<Void> {
+        authorizationApplicationService.deleteResource(id)
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping("/permissions")
     @Operation(summary = "查询权限点列表", description = "按应用、资源和关键字查询权限点。")
     fun permissions(
+        @Parameter(description = "系统域 ID") @RequestParam(required = false) domainId: String?,
         @Parameter(description = "应用 ID") @RequestParam(required = false) appId: String?,
+        @Parameter(description = "业务域 ID") @RequestParam(required = false) businessDomainId: String?,
         @Parameter(description = "资源 ID") @RequestParam(required = false) resourceId: String?,
         @Parameter(description = "关键字，匹配权限编码或名称") @RequestParam(required = false) keyword: String?,
     ): ApiResponse<List<PermissionResponse>> {
-        return ApiResponse.ok(authorizationApplicationService.permissions(appId, resourceId, keyword).map { it.toResponse() })
+        return ApiResponse.ok(authorizationApplicationService.permissions(domainId, appId, businessDomainId, resourceId, keyword).map { it.toResponse() })
     }
 
     @PostMapping("/permissions")
     @Operation(summary = "创建权限点", description = "创建可授权的权限点，并可关联到具体资源。")
     fun createPermission(@Valid @RequestBody request: CreatePermissionRequest): ApiResponse<PermissionResponse> {
         return ApiResponse.ok(authorizationApplicationService.createPermission(request.toCommand()).toResponse())
+    }
+
+    @PatchMapping("/permissions/{id}")
+    @Operation(summary = "更新权限点", description = "更新权限点名称、动作和描述。")
+    fun updatePermission(@PathVariable id: String, @RequestBody request: UpdatePermissionRequest): ApiResponse<PermissionResponse> {
+        return ApiResponse.ok(authorizationApplicationService.updatePermission(id, request.toCommand()).toResponse())
+    }
+
+    @DeleteMapping("/permissions/{id}")
+    @Operation(summary = "删除权限点", description = "根据权限点 ID 删除权限点。")
+    fun deletePermission(@PathVariable id: String): ResponseEntity<Void> {
+        authorizationApplicationService.deletePermission(id)
+        return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/permissions/effective")
@@ -127,5 +152,11 @@ class AuthorizationController(
     @Operation(summary = "查询指定用户有效权限", description = "计算指定用户在指定应用下实际生效的角色、权限点、菜单、按钮和数据范围。")
     fun userEffective(@PathVariable id: String, @RequestParam appId: String): ApiResponse<Any> {
         return ApiResponse.ok(authorizationApplicationService.effectivePermissions(id, appId))
+    }
+
+    @GetMapping("/gateway/api-rules")
+    @Operation(summary = "查询网关 API 权限规则", description = "按应用返回可用于网关鉴权的 API 资源和权限点规则。")
+    fun apiRules(@RequestParam appId: String): ApiResponse<List<ApiPermissionRuleResponse>> {
+        return ApiResponse.ok(authorizationApplicationService.apiPermissionRules(appId).map { it.toResponse() })
     }
 }

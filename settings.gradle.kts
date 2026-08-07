@@ -23,4 +23,6 @@ rootProject.name = "uc"
 
 include(":app")
 include(":common")
+include(":gateway")
 include(":iam")
+include(":sdk")

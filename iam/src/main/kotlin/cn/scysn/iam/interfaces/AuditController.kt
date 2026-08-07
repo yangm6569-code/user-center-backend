@@ -41,7 +41,7 @@ class AuditController(
         @Parameter(description = "页码，从 1 开始") @RequestParam(defaultValue = "1") page: Int,
         @Parameter(description = "每页条数") @RequestParam(defaultValue = "20") pageSize: Int,
     ): ApiResponse<PageResponse<AuditEventResponse>> {
-        return events(AuditSearchQuery("admin", actorId = actorId, eventType = eventType, page = PageQuery(page, pageSize)))
+        return events(AuditSearchQuery("admin", eventCategories = ADMIN_AUDIT_CATEGORIES, actorId = actorId, eventType = eventType, page = PageQuery(page, pageSize)))
     }
 
     @GetMapping("/token-events")
@@ -79,3 +79,5 @@ class AuditController(
         return ApiResponse.ok(auditApplicationService.events(query).mapItems { it.toResponse() })
     }
 }
+
+private val ADMIN_AUDIT_CATEGORIES = setOf("admin", "user", "app", "org", "system", "session")

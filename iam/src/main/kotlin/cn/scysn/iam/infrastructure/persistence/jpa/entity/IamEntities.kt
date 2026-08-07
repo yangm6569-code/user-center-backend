@@ -5,6 +5,10 @@ import cn.scysn.iam.domain.auth.AuthorizationCode
 import cn.scysn.iam.domain.auth.LoginSession
 import cn.scysn.iam.domain.auth.SessionStatus
 import cn.scysn.iam.domain.auth.SsoSession
+import cn.scysn.iam.domain.authorization.BusinessDomain
+import cn.scysn.iam.domain.authorization.DataScopeConfig
+import cn.scysn.iam.domain.authorization.FieldPermission
+import cn.scysn.iam.domain.authorization.FieldPermissionType
 import cn.scysn.iam.domain.authorization.Permission
 import cn.scysn.iam.domain.authorization.Resource
 import cn.scysn.iam.domain.authorization.ResourceType
@@ -12,6 +16,7 @@ import cn.scysn.iam.domain.authorization.Role
 import cn.scysn.iam.domain.authorization.RoleType
 import cn.scysn.iam.domain.clientapp.AppStatus
 import cn.scysn.iam.domain.clientapp.ClientApp
+import cn.scysn.iam.domain.clientapp.OidcClientConfig
 import cn.scysn.iam.domain.clientapp.TokenPolicy
 import cn.scysn.iam.domain.identity.AccountType
 import cn.scysn.iam.domain.identity.RequiredAction
@@ -20,6 +25,7 @@ import cn.scysn.iam.domain.identity.UserProfile
 import cn.scysn.iam.domain.identity.UserRoleGrant
 import cn.scysn.iam.domain.identity.UserStatus
 import cn.scysn.iam.domain.organization.OrgUnit
+import cn.scysn.iam.domain.system.SystemDomain
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -316,6 +322,9 @@ open class IamRoleEntity {
     @Column(name = "app_id", length = 128)
     open var appId: String? = null
 
+    @Column(name = "domain_id", length = 64)
+    open var domainId: String? = null
+
     @Column(name = "role_code", nullable = false, length = 128)
     open var roleCode: String = ""
 
@@ -343,6 +352,7 @@ open class IamRoleEntity {
     fun toDomain(): Role {
         return Role.restore(
             id = id,
+            domainId = domainId ?: appId,
             appId = appId,
             roleCode = roleCode,
             roleName = roleName,
@@ -359,6 +369,7 @@ open class IamRoleEntity {
         fun fromDomain(role: Role): IamRoleEntity {
             return IamRoleEntity().apply {
                 id = role.id
+                domainId = role.domainId
                 appId = role.appId
                 roleCode = role.roleCode
                 roleName = role.roleName
@@ -389,6 +400,12 @@ open class IamResourceEntity {
 
     @Column(name = "app_id", nullable = false, length = 128)
     open var appId: String = ""
+
+    @Column(name = "business_domain_id", length = 64)
+    open var businessDomainId: String? = null
+
+    @Column(name = "domain_id", length = 64)
+    open var domainId: String? = null
 
     @Column(name = "parent_id", length = 64)
     open var parentId: String? = null
@@ -426,7 +443,9 @@ open class IamResourceEntity {
     fun toDomain(): Resource {
         return Resource.restore(
             id = id,
+            domainId = domainId ?: appId,
             appId = appId,
+            businessDomainId = businessDomainId,
             parentId = parentId,
             resourceCode = resourceCode,
             resourceName = resourceName,
@@ -445,7 +464,9 @@ open class IamResourceEntity {
         fun fromDomain(resource: Resource): IamResourceEntity {
             return IamResourceEntity().apply {
                 id = resource.id
+                domainId = resource.domainId
                 appId = resource.appId
+                businessDomainId = resource.businessDomainId
                 parentId = resource.parentId
                 resourceCode = resource.resourceCode
                 resourceName = resource.resourceName
@@ -478,6 +499,12 @@ open class IamPermissionEntity {
     @Column(name = "app_id", nullable = false, length = 128)
     open var appId: String = ""
 
+    @Column(name = "business_domain_id", length = 64)
+    open var businessDomainId: String? = null
+
+    @Column(name = "domain_id", length = 64)
+    open var domainId: String? = null
+
     @Column(name = "resource_id", length = 64)
     open var resourceId: String? = null
 
@@ -505,7 +532,9 @@ open class IamPermissionEntity {
     fun toDomain(): Permission {
         return Permission.restore(
             id = id,
+            domainId = domainId ?: appId,
             appId = appId,
+            businessDomainId = businessDomainId,
             resourceId = resourceId,
             permissionCode = permissionCode,
             permissionName = permissionName,
@@ -521,7 +550,9 @@ open class IamPermissionEntity {
         fun fromDomain(permission: Permission): IamPermissionEntity {
             return IamPermissionEntity().apply {
                 id = permission.id
+                domainId = permission.domainId
                 appId = permission.appId
+                businessDomainId = permission.businessDomainId
                 resourceId = permission.resourceId
                 permissionCode = permission.permissionCode
                 permissionName = permission.permissionName
@@ -551,6 +582,9 @@ open class IamClientAppEntity {
     @Column(name = "client_id", nullable = false, length = 128)
     open var clientId: String = ""
 
+    @Column(name = "domain_id", length = 64)
+    open var domainId: String? = null
+
     @Column(nullable = false, length = 128)
     open var name: String = ""
 
@@ -565,6 +599,9 @@ open class IamClientAppEntity {
 
     @Column(name = "logout_uris_json", nullable = false, columnDefinition = "text")
     open var logoutUrisJson: String = "[]"
+
+    @Column(name = "oidc_config_json", columnDefinition = "text")
+    open var oidcConfigJson: String = "{}"
 
     @Column(name = "access_token_ttl_seconds", nullable = false)
     open var accessTokenTtlSeconds: Long = 900
@@ -587,6 +624,15 @@ open class IamClientAppEntity {
     @Column(name = "secret_version", nullable = false)
     open var secretVersion: Int = 1
 
+    @Column(name = "secret_hash", length = 128)
+    open var secretHash: String? = null
+
+    @Column(name = "previous_secret_hash", length = 128)
+    open var previousSecretHash: String? = null
+
+    @Column(name = "previous_secret_expires_at")
+    open var previousSecretExpiresAt: OffsetDateTime? = null
+
     @Column(name = "created_at", nullable = false)
     open var createdAt: OffsetDateTime = OffsetDateTime.now()
 
@@ -596,6 +642,7 @@ open class IamClientAppEntity {
     fun toDomain(): ClientApp {
         return ClientApp.restore(
             id = id,
+            domainId = domainId ?: defaultDomainId(clientId),
             clientId = clientId,
             name = name,
             appType = appType,
@@ -611,6 +658,10 @@ open class IamClientAppEntity {
             ),
             status = enumByCode(status, AppStatus.entries) { it.code },
             secretVersion = secretVersion,
+            secretHash = secretHash,
+            previousSecretHash = previousSecretHash,
+            previousSecretExpiresAt = previousSecretExpiresAt,
+            oidcConfig = JsonColumns.readObject(oidcConfigJson, OidcClientConfig::class.java),
             createdAt = createdAt,
             updatedAt = updatedAt
         )
@@ -620,12 +671,14 @@ open class IamClientAppEntity {
         fun fromDomain(app: ClientApp): IamClientAppEntity {
             return IamClientAppEntity().apply {
                 id = app.id
+                domainId = app.domainId
                 clientId = app.clientId
                 name = app.name
                 appType = app.appType
                 ownerDept = app.ownerDept
                 redirectUrisJson = JsonColumns.write(app.redirectUris)
                 logoutUrisJson = JsonColumns.write(app.logoutUris)
+                oidcConfigJson = JsonColumns.write(app.oidcConfig)
                 accessTokenTtlSeconds = app.tokenPolicy.accessTokenTtlSeconds
                 refreshTokenIdleSeconds = app.tokenPolicy.refreshTokenIdleSeconds
                 refreshTokenMaxSeconds = app.tokenPolicy.refreshTokenMaxSeconds
@@ -633,8 +686,61 @@ open class IamClientAppEntity {
                 ssoSessionMaxSeconds = app.tokenPolicy.ssoSessionMaxSeconds
                 status = app.status.code
                 secretVersion = app.secretVersion
+                secretHash = app.secretHash
+                previousSecretHash = app.previousSecretHash
+                previousSecretExpiresAt = app.previousSecretExpiresAt
                 createdAt = app.createdAt
                 updatedAt = app.updatedAt
+            }
+        }
+    }
+}
+
+@Entity
+@Table(
+    name = "iam_system_domain",
+    indexes = [
+        Index(name = "idx_iam_system_domain_code", columnList = "code", unique = true),
+        Index(name = "idx_iam_system_domain_enabled", columnList = "enabled")
+    ]
+)
+open class IamSystemDomainEntity {
+    @Id
+    @Column(length = 64)
+    open var id: String = ""
+
+    @Column(nullable = false, length = 128)
+    open var code: String = ""
+
+    @Column(nullable = false, length = 128)
+    open var name: String = ""
+
+    @Column(length = 512)
+    open var description: String? = null
+
+    @Column(nullable = false)
+    open var enabled: Boolean = true
+
+    @Column(name = "created_at", nullable = false)
+    open var createdAt: OffsetDateTime = OffsetDateTime.now()
+
+    @Column(name = "updated_at", nullable = false)
+    open var updatedAt: OffsetDateTime = OffsetDateTime.now()
+
+    fun toDomain(): SystemDomain {
+        return SystemDomain.restore(id, code, name, description, enabled, createdAt, updatedAt)
+    }
+
+    companion object {
+        fun fromDomain(domain: SystemDomain): IamSystemDomainEntity {
+            return IamSystemDomainEntity().apply {
+                id = domain.id
+                code = domain.code
+                name = domain.name
+                description = domain.description
+                enabled = domain.enabled
+                createdAt = domain.createdAt
+                updatedAt = domain.updatedAt
             }
         }
     }
@@ -802,6 +908,9 @@ open class IamAuthorizationCodeEntity {
     @Column(length = 512)
     open var scope: String? = null
 
+    @Column(length = 256)
+    open var nonce: String? = null
+
     @Column(nullable = false)
     open var used: Boolean = false
 
@@ -821,6 +930,7 @@ open class IamAuthorizationCodeEntity {
             clientId = clientId,
             redirectUri = redirectUri,
             scope = scope,
+            nonce = nonce,
             used = used,
             createdAt = createdAt,
             expiresAt = expiresAt,
@@ -836,6 +946,7 @@ open class IamAuthorizationCodeEntity {
                 clientId = code.clientId
                 redirectUri = code.redirectUri
                 scope = code.scope
+                nonce = code.nonce
                 used = code.used
                 createdAt = code.createdAt
                 expiresAt = code.expiresAt
@@ -938,4 +1049,203 @@ open class IamAuditEventEntity {
 private fun <E : Enum<E>> enumByCode(code: String, entries: Iterable<E>, codeOf: (E) -> String): E {
     return entries.firstOrNull { codeOf(it) == code }
         ?: throw IllegalArgumentException("Unknown enum code: $code")
+}
+
+private fun defaultDomainId(clientId: String): String {
+    return when {
+        clientId.startsWith("mes-") -> "mes"
+        clientId.startsWith("report-") -> "report"
+        else -> "user-center"
+    }
+}
+
+@Entity
+@Table(
+    name = "iam_business_domain",
+    indexes = [
+        Index(name = "idx_iam_business_domain_app_code", columnList = "app_id,code", unique = true),
+        Index(name = "idx_iam_business_domain_domain", columnList = "domain_id")
+    ]
+)
+open class IamBusinessDomainEntity {
+    @Id
+    @Column(length = 64)
+    open var id: String = ""
+
+    @Column(name = "domain_id", nullable = false, length = 64)
+    open var domainId: String = ""
+
+    @Column(name = "app_id", nullable = false, length = 128)
+    open var appId: String = ""
+
+    @Column(nullable = false, length = 128)
+    open var code: String = ""
+
+    @Column(nullable = false, length = 128)
+    open var name: String = ""
+
+    @Column(length = 512)
+    open var description: String? = null
+
+    @Column(nullable = false)
+    open var enabled: Boolean = true
+
+    @Column(name = "created_at", nullable = false)
+    open var createdAt: OffsetDateTime = OffsetDateTime.now()
+
+    @Column(name = "updated_at", nullable = false)
+    open var updatedAt: OffsetDateTime = OffsetDateTime.now()
+
+    fun toDomain(): BusinessDomain {
+        return BusinessDomain.restore(id, domainId, appId, code, name, description, enabled, createdAt, updatedAt)
+    }
+
+    companion object {
+        fun fromDomain(domain: BusinessDomain): IamBusinessDomainEntity {
+            return IamBusinessDomainEntity().apply {
+                id = domain.id
+                this.domainId = domain.domainId
+                this.appId = domain.appId
+                code = domain.code
+                name = domain.name
+                description = domain.description
+                enabled = domain.enabled
+                createdAt = domain.createdAt
+                updatedAt = domain.updatedAt
+            }
+        }
+    }
+}
+
+@Entity
+@Table(
+    name = "iam_field_permission",
+    indexes = [
+        Index(name = "idx_iam_field_perm_business_domain", columnList = "business_domain_id"),
+        Index(name = "idx_iam_field_perm_role", columnList = "role_id"),
+        Index(name = "idx_iam_field_perm_bd_role", columnList = "business_domain_id,role_id,field_code", unique = true)
+    ]
+)
+open class IamFieldPermissionEntity {
+    @Id
+    @Column(length = 64)
+    open var id: String = ""
+
+    @Column(name = "business_domain_id", nullable = false, length = 64)
+    open var businessDomainId: String = ""
+
+    @Column(name = "role_id", nullable = false, length = 64)
+    open var roleId: String = ""
+
+    @Column(name = "field_code", nullable = false, length = 128)
+    open var fieldCode: String = ""
+
+    @Column(name = "field_name", length = 128)
+    open var fieldName: String? = null
+
+    @Column(name = "permission_type", nullable = false, length = 32)
+    open var permissionType: String = FieldPermissionType.VISIBLE.code
+
+    @Column(nullable = false)
+    open var enabled: Boolean = true
+
+    @Column(name = "created_at", nullable = false)
+    open var createdAt: OffsetDateTime = OffsetDateTime.now()
+
+    @Column(name = "updated_at", nullable = false)
+    open var updatedAt: OffsetDateTime = OffsetDateTime.now()
+
+    fun toDomain(): FieldPermission {
+        return FieldPermission.restore(
+            id = id,
+            businessDomainId = businessDomainId,
+            roleId = roleId,
+            fieldCode = fieldCode,
+            fieldName = fieldName,
+            permissionType = enumByCode(permissionType, FieldPermissionType.entries) { it.code },
+            enabled = enabled,
+            createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+    }
+
+    companion object {
+        fun fromDomain(permission: FieldPermission): IamFieldPermissionEntity {
+            return IamFieldPermissionEntity().apply {
+                id = permission.id
+                businessDomainId = permission.businessDomainId
+                roleId = permission.roleId
+                fieldCode = permission.fieldCode
+                fieldName = permission.fieldName
+                permissionType = permission.permissionType.code
+                enabled = permission.enabled
+                createdAt = permission.createdAt
+                updatedAt = permission.updatedAt
+            }
+        }
+    }
+}
+
+@Entity
+@Table(
+    name = "iam_data_scope_config",
+    indexes = [
+        Index(name = "idx_iam_data_scope_business_domain", columnList = "business_domain_id"),
+        Index(name = "idx_iam_data_scope_role", columnList = "role_id"),
+        Index(name = "idx_iam_data_scope_bd_role", columnList = "business_domain_id,role_id", unique = true)
+    ]
+)
+open class IamDataScopeConfigEntity {
+    @Id
+    @Column(length = 64)
+    open var id: String = ""
+
+    @Column(name = "business_domain_id", nullable = false, length = 64)
+    open var businessDomainId: String = ""
+
+    @Column(name = "role_id", nullable = false, length = 64)
+    open var roleId: String = ""
+
+    @Column(name = "scope_type", nullable = false, length = 64)
+    open var scopeType: String = ""
+
+    @Column(name = "scope_value", nullable = false, columnDefinition = "text")
+    open var scopeValue: String = "[]"
+
+    @Column(nullable = false)
+    open var enabled: Boolean = true
+
+    @Column(name = "created_at", nullable = false)
+    open var createdAt: OffsetDateTime = OffsetDateTime.now()
+
+    @Column(name = "updated_at", nullable = false)
+    open var updatedAt: OffsetDateTime = OffsetDateTime.now()
+
+    fun toDomain(): DataScopeConfig {
+        return DataScopeConfig.restore(
+            id = id,
+            businessDomainId = businessDomainId,
+            roleId = roleId,
+            scopeType = scopeType,
+            scopeValue = JsonColumns.readSet(scopeValue),
+            enabled = enabled,
+            createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+    }
+
+    companion object {
+        fun fromDomain(config: DataScopeConfig): IamDataScopeConfigEntity {
+            return IamDataScopeConfigEntity().apply {
+                id = config.id
+                businessDomainId = config.businessDomainId
+                roleId = config.roleId
+                scopeType = config.scopeType
+                scopeValue = JsonColumns.write(config.scopeValue)
+                enabled = config.enabled
+                createdAt = config.createdAt
+                updatedAt = config.updatedAt
+            }
+        }
+    }
 }

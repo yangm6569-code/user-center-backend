@@ -16,6 +16,12 @@ data class LoginCommand(
 data class RefreshTokenCommand(
     val clientId: String,
     val refreshToken: String,
+    val clientSecret: String? = null,
+)
+
+data class SsoCookieRenewal(
+    val sessionId: String,
+    val maxAgeSeconds: Long,
 )
 
 data class ChangePasswordCommand(
@@ -100,6 +106,7 @@ data class BindOrgUnitRolesCommand(
 )
 
 data class CreateRoleCommand(
+    val domainId: String?,
     val appId: String?,
     val roleCode: String,
     val roleName: String,
@@ -121,7 +128,9 @@ data class BindRolePermissionsCommand(
 )
 
 data class CreateResourceCommand(
+    val domainId: String?,
     val appId: String,
+    val businessDomainId: String? = null,
     val parentId: String?,
     val resourceCode: String,
     val resourceName: String,
@@ -142,7 +151,9 @@ data class UpdateResourceCommand(
 )
 
 data class CreatePermissionCommand(
+    val domainId: String?,
     val appId: String,
+    val businessDomainId: String? = null,
     val resourceId: String?,
     val permissionCode: String,
     val permissionName: String,
@@ -150,7 +161,14 @@ data class CreatePermissionCommand(
     val description: String?,
 )
 
+data class UpdatePermissionCommand(
+    val permissionName: String?,
+    val action: String?,
+    val description: String?,
+)
+
 data class CreateClientAppCommand(
+    val domainId: String,
     val clientId: String,
     val name: String,
     val appType: String,
@@ -162,12 +180,38 @@ data class CreateClientAppCommand(
 
 data class UpdateClientAppCommand(
     val name: String?,
+    val domainId: String?,
     val appType: String?,
     val ownerDept: String?,
     val redirectUris: Set<String>?,
     val logoutUris: Set<String>?,
     val tokenPolicy: TokenPolicyCommand?,
     val status: String?,
+    val oidcConfig: OidcClientConfigCommand?,
+)
+
+data class OidcClientConfigCommand(
+    val issuer: String?,
+    val discoveryUrl: String?,
+    val authorizeUrl: String?,
+    val tokenUrl: String?,
+    val userInfoUrl: String?,
+    val jwksUrl: String?,
+    val scope: String?,
+    val responseType: String?,
+    val grantType: String?,
+)
+
+data class CreateSystemDomainCommand(
+    val code: String,
+    val name: String,
+    val description: String?,
+)
+
+data class UpdateSystemDomainCommand(
+    val name: String?,
+    val description: String?,
+    val enabled: Boolean?,
 )
 
 data class RotateSecretCommand(
@@ -202,4 +246,89 @@ data class ExportAuditCommand(
     val endTime: OffsetDateTime?,
     val format: String,
     val reason: String,
+)
+
+data class CreateBusinessDomainCommand(
+    val domainId: String,
+    val appId: String,
+    val code: String,
+    val name: String,
+    val description: String?,
+)
+
+data class UpdateBusinessDomainCommand(
+    val name: String?,
+    val description: String?,
+    val enabled: Boolean?,
+)
+
+data class ConfigureFieldPermissionsCommand(
+    val roleId: String,
+    val fields: List<FieldPermissionEntry>,
+    val reason: String,
+)
+
+data class FieldPermissionEntry(
+    val fieldCode: String,
+    val fieldName: String?,
+    val permissionType: String,
+)
+
+data class ConfigureDataScopeCommand(
+    val roleId: String,
+    val scopeType: String,
+    val scopeValue: Set<String>,
+    val reason: String,
+)
+
+data class SyncMetadataCommand(
+    val appId: String,
+    val businessDomains: List<SyncBusinessDomainEntry>,
+)
+
+data class SyncBusinessDomainEntry(
+    val code: String,
+    val name: String,
+    val description: String?,
+    val resources: List<SyncResourceEntry>?,
+)
+
+data class SyncResourceEntry(
+    val code: String,
+    val name: String,
+    val type: String,
+    val parentCode: String?,
+    val path: String?,
+    val method: String?,
+    val sortOrder: Int,
+    val operations: List<String>?,
+    val fields: List<SyncFieldEntry>?,
+)
+
+data class SyncFieldEntry(
+    val code: String,
+    val name: String,
+    val type: String,
+    val sensitive: Boolean,
+)
+
+data class ImportPermissionModelCommand(
+    val appId: String,
+    val sourceSystem: String,
+    val roles: List<ImportRoleEntry>,
+    val reason: String,
+)
+
+data class ImportRoleEntry(
+    val roleCode: String,
+    val roleName: String,
+    val roleType: String,
+    val permissionCodes: Set<String>,
+    val fieldPermissions: Map<String, String>?,
+    val dataScope: ImportDataScopeEntry?,
+)
+
+data class ImportDataScopeEntry(
+    val scopeType: String,
+    val scopeValue: Set<String>,
 )

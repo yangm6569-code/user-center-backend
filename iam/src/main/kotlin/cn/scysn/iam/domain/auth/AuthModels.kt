@@ -161,6 +161,7 @@ class AuthorizationCode private constructor(
     val clientId: String,
     val redirectUri: String,
     val scope: String?,
+    val nonce: String?,
     used: Boolean,
     val createdAt: OffsetDateTime,
     val expiresAt: OffsetDateTime,
@@ -172,7 +173,14 @@ class AuthorizationCode private constructor(
         private set
 
     companion object {
-        fun create(userId: String, clientId: String, redirectUri: String, scope: String?, ttlSeconds: Long = 300): AuthorizationCode {
+        fun create(
+            userId: String,
+            clientId: String,
+            redirectUri: String,
+            scope: String?,
+            nonce: String?,
+            ttlSeconds: Long = 300,
+        ): AuthorizationCode {
             val createdAt = now()
             return AuthorizationCode(
                 code = randomSecret("code_"),
@@ -180,6 +188,7 @@ class AuthorizationCode private constructor(
                 clientId = clientId,
                 redirectUri = redirectUri,
                 scope = scope,
+                nonce = nonce,
                 used = false,
                 createdAt = createdAt,
                 expiresAt = createdAt.plusSeconds(ttlSeconds),
@@ -193,12 +202,13 @@ class AuthorizationCode private constructor(
             clientId: String,
             redirectUri: String,
             scope: String?,
+            nonce: String?,
             used: Boolean,
             createdAt: OffsetDateTime,
             expiresAt: OffsetDateTime,
             usedAt: OffsetDateTime?,
         ): AuthorizationCode {
-            return AuthorizationCode(code, userId, clientId, redirectUri, scope, used, createdAt, expiresAt, usedAt)
+            return AuthorizationCode(code, userId, clientId, redirectUri, scope, nonce, used, createdAt, expiresAt, usedAt)
         }
     }
 
@@ -219,6 +229,7 @@ data class TokenSet(
     val refreshToken: String,
     val refreshExpiresIn: Long,
     val sessionId: String,
+    val idToken: String? = null,
 )
 
 data class LoginUserSummary(
@@ -235,7 +246,9 @@ data class LoginResult(
     val refreshToken: String,
     val refreshExpiresIn: Long,
     val sessionId: String,
+    val idToken: String? = null,
     val ssoSessionId: String,
+    val ssoSessionExpiresIn: Long,
     val requiredActions: List<String>,
     val user: LoginUserSummary,
 )

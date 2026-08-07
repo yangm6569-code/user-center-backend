@@ -9,6 +9,10 @@ import cn.scysn.iam.domain.auth.AuthorizationCode
 import cn.scysn.iam.domain.auth.LoginSession
 import cn.scysn.iam.domain.auth.SessionStatus
 import cn.scysn.iam.domain.auth.SsoSession
+import cn.scysn.iam.domain.authorization.BusinessDomain
+import cn.scysn.iam.domain.authorization.DataScope
+import cn.scysn.iam.domain.authorization.DataScopeConfig
+import cn.scysn.iam.domain.authorization.FieldPermission
 import cn.scysn.iam.domain.authorization.Permission
 import cn.scysn.iam.domain.authorization.Resource
 import cn.scysn.iam.domain.authorization.Role
@@ -19,7 +23,12 @@ import cn.scysn.iam.domain.ports.AppSearchQuery
 import cn.scysn.iam.domain.ports.AuditRepository
 import cn.scysn.iam.domain.ports.AuditSearchQuery
 import cn.scysn.iam.domain.ports.AuthorizationCodeRepository
+import cn.scysn.iam.domain.ports.BusinessDomainRepository
+import cn.scysn.iam.domain.ports.BusinessDomainSearchQuery
 import cn.scysn.iam.domain.ports.ClientAppRepository
+import cn.scysn.iam.domain.ports.DataScopeConfigRepository
+import cn.scysn.iam.domain.ports.FieldPermissionRepository
+import cn.scysn.iam.domain.ports.FieldPermissionSearchQuery
 import cn.scysn.iam.domain.ports.OrgUnitRepository
 import cn.scysn.iam.domain.ports.PermissionRepository
 import cn.scysn.iam.domain.ports.PermissionSearchQuery
@@ -30,34 +39,46 @@ import cn.scysn.iam.domain.ports.RoleSearchQuery
 import cn.scysn.iam.domain.ports.SessionRepository
 import cn.scysn.iam.domain.ports.SessionSearchQuery
 import cn.scysn.iam.domain.ports.SsoSessionRepository
+import cn.scysn.iam.domain.ports.SystemDomainRepository
+import cn.scysn.iam.domain.ports.SystemDomainSearchQuery
 import cn.scysn.iam.domain.ports.UserRepository
 import cn.scysn.iam.domain.ports.UserSearchQuery
+import cn.scysn.iam.domain.system.SystemDomain
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamAuditEventEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamAuthorizationCodeEntity
+import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamBusinessDomainEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamClientAppEntity
+import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamDataScopeConfigEntity
+import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamFieldPermissionEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamOrgUnitEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamPermissionEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamResourceEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamRoleEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamSessionEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamSsoSessionEntity
+import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamSystemDomainEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamUserCredentialEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamUserEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.entity.IamUserProfileEntity
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamAuditEventJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamAuthorizationCodeJpaRepository
+import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamBusinessDomainJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamClientAppJpaRepository
+import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamDataScopeConfigJpaRepository
+import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamFieldPermissionJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamOrgUnitJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamPermissionJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamResourceJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamRoleJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamSessionJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamSsoSessionJpaRepository
+import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamSystemDomainJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamUserCredentialJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamUserJpaRepository
 import cn.scysn.iam.infrastructure.persistence.jpa.repository.IamUserProfileJpaRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
@@ -72,10 +93,14 @@ class JpaIamStore(
     private val resourceJpaRepository: IamResourceJpaRepository,
     private val permissionJpaRepository: IamPermissionJpaRepository,
     private val clientAppJpaRepository: IamClientAppJpaRepository,
+    private val systemDomainJpaRepository: IamSystemDomainJpaRepository,
     private val sessionJpaRepository: IamSessionJpaRepository,
     private val ssoSessionJpaRepository: IamSsoSessionJpaRepository,
     private val authorizationCodeJpaRepository: IamAuthorizationCodeJpaRepository,
     private val auditEventJpaRepository: IamAuditEventJpaRepository,
+    private val businessDomainJpaRepository: IamBusinessDomainJpaRepository,
+    private val fieldPermissionJpaRepository: IamFieldPermissionJpaRepository,
+    private val dataScopeConfigJpaRepository: IamDataScopeConfigJpaRepository,
 ) :
     UserRepository,
     OrgUnitRepository,
@@ -83,10 +108,14 @@ class JpaIamStore(
     ResourceRepository,
     PermissionRepository,
     ClientAppRepository,
+    SystemDomainRepository,
     SessionRepository,
     SsoSessionRepository,
     AuthorizationCodeRepository,
-    AuditRepository {
+    AuditRepository,
+    BusinessDomainRepository,
+    FieldPermissionRepository,
+    DataScopeConfigRepository {
 
     override fun save(user: User): User {
         userJpaRepository.save(IamUserEntity.fromDomain(user))
@@ -177,20 +206,21 @@ class JpaIamStore(
     @Transactional(readOnly = true)
     override fun search(query: RoleSearchQuery): PageResponse<Role> {
         val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val domainId = query.domainId?.takeIf { it.isNotBlank() }
         val appId = query.appId?.takeIf { it.isNotBlank() }
         val roleType = query.roleType?.takeIf { it.isNotBlank() }
         val pageable = pageRequest(query.page, Sort.by(Sort.Direction.DESC, "createdAt"))
         val page = if (keyword == null) {
-            roleJpaRepository.searchWithoutKeyword(appId = appId, roleType = roleType, pageable = pageable)
+            roleJpaRepository.searchWithoutKeyword(domainId = domainId, appId = appId, roleType = roleType, pageable = pageable)
         } else {
-            roleJpaRepository.searchWithKeyword(appId = appId, roleType = roleType, keyword = keyword, pageable = pageable)
+            roleJpaRepository.searchWithKeyword(domainId = domainId, appId = appId, roleType = roleType, keyword = keyword, pageable = pageable)
         }
         return PageResponse.of(page.content.map { it.toDomain() }, query.page.page, query.page.pageSize, page.totalElements)
     }
 
     @Transactional(readOnly = true)
     override fun existsRoleCode(appId: String?, roleCode: String): Boolean {
-        return roleJpaRepository.existsByAppIdAndRoleCode(appId, roleCode)
+        return roleJpaRepository.existsByDomainIdAndRoleCode(appId, roleCode) || roleJpaRepository.existsByAppIdAndRoleCode(appId, roleCode)
     }
 
     override fun deleteRole(id: String) {
@@ -214,19 +244,26 @@ class JpaIamStore(
     @Transactional(readOnly = true)
     override fun search(query: ResourceSearchQuery): List<Resource> {
         val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val domainId = query.domainId?.takeIf { it.isNotBlank() }
         val appId = query.appId?.takeIf { it.isNotBlank() }
+        val businessDomainId = query.businessDomainId?.takeIf { it.isNotBlank() }
         val resourceType = query.resourceType?.takeIf { it.isNotBlank() }
         val resources = if (keyword == null) {
-            resourceJpaRepository.searchWithoutKeyword(appId = appId, resourceType = resourceType)
+            resourceJpaRepository.searchWithoutKeyword(domainId = domainId, appId = appId, businessDomainId = businessDomainId, resourceType = resourceType)
         } else {
-            resourceJpaRepository.searchWithKeyword(appId = appId, resourceType = resourceType, keyword = keyword)
+            resourceJpaRepository.searchWithKeyword(domainId = domainId, appId = appId, businessDomainId = businessDomainId, resourceType = resourceType, keyword = keyword)
         }
         return resources.map { it.toDomain() }
     }
 
     @Transactional(readOnly = true)
     override fun existsResourceCode(appId: String, resourceCode: String): Boolean {
-        return resourceJpaRepository.existsByAppIdAndResourceCode(appId, resourceCode)
+        return resourceJpaRepository.existsByDomainIdAndResourceCode(appId, resourceCode) ||
+            resourceJpaRepository.existsByAppIdAndResourceCode(appId, resourceCode)
+    }
+
+    override fun deleteResource(id: String) {
+        resourceJpaRepository.deleteById(id)
     }
 
     override fun save(permission: Permission): Permission {
@@ -245,19 +282,26 @@ class JpaIamStore(
     @Transactional(readOnly = true)
     override fun search(query: PermissionSearchQuery): List<Permission> {
         val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val domainId = query.domainId?.takeIf { it.isNotBlank() }
         val appId = query.appId?.takeIf { it.isNotBlank() }
+        val businessDomainId = query.businessDomainId?.takeIf { it.isNotBlank() }
         val resourceId = query.resourceId?.takeIf { it.isNotBlank() }
         val permissions = if (keyword == null) {
-            permissionJpaRepository.searchWithoutKeyword(appId = appId, resourceId = resourceId)
+            permissionJpaRepository.searchWithoutKeyword(domainId = domainId, appId = appId, businessDomainId = businessDomainId, resourceId = resourceId)
         } else {
-            permissionJpaRepository.searchWithKeyword(appId = appId, resourceId = resourceId, keyword = keyword)
+            permissionJpaRepository.searchWithKeyword(domainId = domainId, appId = appId, businessDomainId = businessDomainId, resourceId = resourceId, keyword = keyword)
         }
         return permissions.map { it.toDomain() }
     }
 
     @Transactional(readOnly = true)
     override fun existsPermissionCode(appId: String, permissionCode: String): Boolean {
-        return permissionJpaRepository.existsByAppIdAndPermissionCode(appId, permissionCode)
+        return permissionJpaRepository.existsByDomainIdAndPermissionCode(appId, permissionCode) ||
+            permissionJpaRepository.existsByAppIdAndPermissionCode(appId, permissionCode)
+    }
+
+    override fun deletePermission(id: String) {
+        permissionJpaRepository.deleteById(id)
     }
 
     override fun save(app: ClientApp): ClientApp {
@@ -274,18 +318,49 @@ class JpaIamStore(
     @Transactional(readOnly = true)
     override fun search(query: AppSearchQuery): PageResponse<ClientApp> {
         val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val domainId = query.domainId?.takeIf { it.isNotBlank() }
         val status = query.status?.takeIf { it.isNotBlank() }
         val pageable = pageRequest(query.page, Sort.by(Sort.Direction.DESC, "createdAt"))
         val page = if (keyword == null) {
-            clientAppJpaRepository.searchWithoutKeyword(status = status, pageable = pageable)
+            clientAppJpaRepository.searchWithoutKeyword(domainId = domainId, status = status, pageable = pageable)
         } else {
-            clientAppJpaRepository.searchWithKeyword(keyword = keyword, status = status, pageable = pageable)
+            clientAppJpaRepository.searchWithKeyword(domainId = domainId, keyword = keyword, status = status, pageable = pageable)
         }
         return PageResponse.of(page.content.map { it.toDomain() }, query.page.page, query.page.pageSize, page.totalElements)
     }
 
     @Transactional(readOnly = true)
     override fun existsByClientId(clientId: String): Boolean = clientAppJpaRepository.existsByClientId(clientId)
+
+    override fun deleteApp(id: String) {
+        clientAppJpaRepository.deleteById(id)
+    }
+
+    override fun save(domain: SystemDomain): SystemDomain {
+        systemDomainJpaRepository.save(IamSystemDomainEntity.fromDomain(domain))
+        return domain
+    }
+
+    @Transactional(readOnly = true)
+    override fun findDomainById(id: String): SystemDomain? = systemDomainJpaRepository.findById(id).orElse(null)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun findByCode(code: String): SystemDomain? = systemDomainJpaRepository.findByCode(code)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun search(query: SystemDomainSearchQuery): PageResponse<SystemDomain> {
+        val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val pageable = pageRequest(query.page, Sort.by(Sort.Direction.DESC, "createdAt"))
+        val page = if (keyword == null) {
+            systemDomainJpaRepository.searchWithoutKeyword(enabled = query.enabled, pageable = pageable)
+        } else {
+            systemDomainJpaRepository.searchWithKeyword(keyword = keyword, enabled = query.enabled, pageable = pageable)
+        }
+        return PageResponse.of(page.content.map { it.toDomain() }, query.page.page, query.page.pageSize, page.totalElements)
+    }
+
+    @Transactional(readOnly = true)
+    override fun existsByCode(code: String): Boolean = systemDomainJpaRepository.existsByCode(code)
 
     override fun save(session: LoginSession): LoginSession {
         sessionJpaRepository.save(IamSessionEntity.fromDomain(session))
@@ -341,19 +416,46 @@ class JpaIamStore(
 
     @Transactional(readOnly = true)
     override fun search(query: AuditSearchQuery): PageResponse<AuditEvent> {
-        val page = auditEventJpaRepository.search(
-            eventCategory = query.eventCategory,
-            actorId = query.actorId?.takeIf { it.isNotBlank() },
-            targetId = query.targetId?.takeIf { it.isNotBlank() },
-            userId = query.userId?.takeIf { it.isNotBlank() },
-            eventType = query.eventType?.takeIf { it.isNotBlank() },
-            result = query.result?.takeIf { it.isNotBlank() },
-            riskType = query.riskType?.takeIf { it.isNotBlank() },
-            startTime = query.startTime,
-            endTime = query.endTime,
-            pageable = pageRequest(query.page, Sort.by(Sort.Direction.DESC, "createdAt"))
-        )
+        val spec = auditEventSpecification(query)
+        val page = auditEventJpaRepository.findAll(spec, pageRequest(query.page, Sort.by(Sort.Direction.DESC, "createdAt")))
         return PageResponse.of(page.content.map { it.toDomain() }, query.page.page, query.page.pageSize, page.totalElements)
+    }
+
+    private fun auditEventSpecification(query: AuditSearchQuery): Specification<IamAuditEventEntity> {
+        return Specification { root, _, cb ->
+            val categories = query.eventCategories.takeIf { it.isNotEmpty() } ?: setOf(query.eventCategory)
+            val predicates = mutableListOf(root.get<String>("eventCategory").`in`(categories))
+
+            query.actorId?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.equal(root.get<String>("actorId"), it)
+            }
+            query.targetId?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.equal(root.get<String>("targetId"), it)
+            }
+            query.userId?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.or(
+                    cb.equal(root.get<String>("actorId"), it),
+                    cb.equal(root.get<String>("targetId"), it)
+                )
+            }
+            query.eventType?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.equal(root.get<String>("eventType"), it)
+            }
+            query.result?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.equal(root.get<String>("result"), it)
+            }
+            query.riskType?.takeIf { it.isNotBlank() }?.let {
+                predicates += cb.equal(root.get<String>("eventType"), it)
+            }
+            query.startTime?.let {
+                predicates += cb.greaterThanOrEqualTo(root.get("createdAt"), it)
+            }
+            query.endTime?.let {
+                predicates += cb.lessThanOrEqualTo(root.get("createdAt"), it)
+            }
+
+            cb.and(*predicates.toTypedArray())
+        }
     }
 
     private fun IamUserEntity.toDomainOrNull(): User? {
@@ -364,5 +466,80 @@ class JpaIamStore(
 
     private fun pageRequest(page: PageQuery, sort: Sort): PageRequest {
         return PageRequest.of(page.page - 1, page.pageSize, sort)
+    }
+
+    override fun save(domain: BusinessDomain): BusinessDomain {
+        businessDomainJpaRepository.save(IamBusinessDomainEntity.fromDomain(domain))
+        return domain
+    }
+
+    @Transactional(readOnly = true)
+    override fun findBusinessDomainById(id: String): BusinessDomain? =
+        businessDomainJpaRepository.findById(id).orElse(null)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun findByCode(appId: String, code: String): BusinessDomain? =
+        businessDomainJpaRepository.findByAppIdAndCode(appId, code)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun search(query: BusinessDomainSearchQuery): PageResponse<BusinessDomain> {
+        val keyword = query.keyword?.takeIf { it.isNotBlank() }
+        val domainId = query.domainId?.takeIf { it.isNotBlank() }
+        val appId = query.appId?.takeIf { it.isNotBlank() }
+        val pageable = pageRequest(query.page, Sort.by(Sort.Direction.ASC, "code"))
+        val page = if (keyword == null) {
+            businessDomainJpaRepository.searchWithoutKeyword(domainId = domainId, appId = appId, pageable = pageable)
+        } else {
+            businessDomainJpaRepository.searchWithKeyword(domainId = domainId, appId = appId, keyword = keyword, pageable = pageable)
+        }
+        return PageResponse.of(page.content.map { it.toDomain() }, query.page.page, query.page.pageSize, page.totalElements)
+    }
+
+    @Transactional(readOnly = true)
+    override fun existsByCode(appId: String, code: String): Boolean =
+        businessDomainJpaRepository.existsByAppIdAndCode(appId, code)
+
+    override fun deleteBusinessDomain(id: String) {
+        businessDomainJpaRepository.deleteById(id)
+    }
+
+    override fun save(permission: FieldPermission): FieldPermission {
+        fieldPermissionJpaRepository.save(IamFieldPermissionEntity.fromDomain(permission))
+        return permission
+    }
+
+    @Transactional(readOnly = true)
+    override fun findFieldPermissionById(id: String): FieldPermission? =
+        fieldPermissionJpaRepository.findById(id).orElse(null)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun search(query: FieldPermissionSearchQuery): List<FieldPermission> {
+        val entities = if (query.roleId != null) {
+            fieldPermissionJpaRepository.findByBusinessDomainIdAndRoleId(query.businessDomainId, query.roleId)
+        } else {
+            fieldPermissionJpaRepository.findByBusinessDomainId(query.businessDomainId)
+        }
+        return entities.map { it.toDomain() }
+    }
+
+    override fun deleteByBusinessDomainId(businessDomainId: String) {
+        fieldPermissionJpaRepository.deleteByBusinessDomainId(businessDomainId)
+    }
+
+    override fun save(config: DataScopeConfig): DataScopeConfig {
+        dataScopeConfigJpaRepository.save(IamDataScopeConfigEntity.fromDomain(config))
+        return config
+    }
+
+    @Transactional(readOnly = true)
+    override fun findDataScopeConfigById(id: String): DataScopeConfig? =
+        dataScopeConfigJpaRepository.findById(id).orElse(null)?.toDomain()
+
+    @Transactional(readOnly = true)
+    override fun findByBusinessDomainIdAndRoleId(businessDomainId: String, roleId: String): DataScopeConfig? =
+        dataScopeConfigJpaRepository.findByBusinessDomainIdAndRoleId(businessDomainId, roleId)?.toDomain()
+
+    override fun deleteDataScopeConfigsByBusinessDomainId(businessDomainId: String) {
+        dataScopeConfigJpaRepository.deleteByBusinessDomainId(businessDomainId)
     }
 }

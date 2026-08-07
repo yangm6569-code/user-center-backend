@@ -8,6 +8,9 @@ import cn.scysn.iam.domain.audit.AuditEvent
 import cn.scysn.iam.domain.auth.AuthorizationCode
 import cn.scysn.iam.domain.auth.LoginSession
 import cn.scysn.iam.domain.auth.SsoSession
+import cn.scysn.iam.domain.authorization.BusinessDomain
+import cn.scysn.iam.domain.authorization.DataScopeConfig
+import cn.scysn.iam.domain.authorization.FieldPermission
 import cn.scysn.iam.domain.authorization.Permission
 import cn.scysn.iam.domain.authorization.Resource
 import cn.scysn.iam.domain.authorization.Role
@@ -18,7 +21,12 @@ import cn.scysn.iam.domain.ports.AppSearchQuery
 import cn.scysn.iam.domain.ports.AuditRepository
 import cn.scysn.iam.domain.ports.AuditSearchQuery
 import cn.scysn.iam.domain.ports.AuthorizationCodeRepository
+import cn.scysn.iam.domain.ports.BusinessDomainRepository
+import cn.scysn.iam.domain.ports.BusinessDomainSearchQuery
 import cn.scysn.iam.domain.ports.ClientAppRepository
+import cn.scysn.iam.domain.ports.DataScopeConfigRepository
+import cn.scysn.iam.domain.ports.FieldPermissionRepository
+import cn.scysn.iam.domain.ports.FieldPermissionSearchQuery
 import cn.scysn.iam.domain.ports.OrgUnitRepository
 import cn.scysn.iam.domain.ports.PermissionRepository
 import cn.scysn.iam.domain.ports.PermissionSearchQuery
@@ -29,8 +37,11 @@ import cn.scysn.iam.domain.ports.RoleSearchQuery
 import cn.scysn.iam.domain.ports.SessionRepository
 import cn.scysn.iam.domain.ports.SessionSearchQuery
 import cn.scysn.iam.domain.ports.SsoSessionRepository
+import cn.scysn.iam.domain.ports.SystemDomainRepository
+import cn.scysn.iam.domain.ports.SystemDomainSearchQuery
 import cn.scysn.iam.domain.ports.UserRepository
 import cn.scysn.iam.domain.ports.UserSearchQuery
+import cn.scysn.iam.domain.system.SystemDomain
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.util.concurrent.ConcurrentHashMap
@@ -44,10 +55,14 @@ class InMemoryIamStore :
     ResourceRepository,
     PermissionRepository,
     ClientAppRepository,
+    SystemDomainRepository,
     SessionRepository,
     SsoSessionRepository,
     AuthorizationCodeRepository,
-    AuditRepository {
+    AuditRepository,
+    BusinessDomainRepository,
+    FieldPermissionRepository,
+    DataScopeConfigRepository {
 
     private val users = ConcurrentHashMap<String, User>()
     private val orgUnits = ConcurrentHashMap<String, OrgUnit>()
@@ -55,6 +70,7 @@ class InMemoryIamStore :
     private val resources = ConcurrentHashMap<String, Resource>()
     private val permissions = ConcurrentHashMap<String, Permission>()
     private val apps = ConcurrentHashMap<String, ClientApp>()
+    private val domains = ConcurrentHashMap<String, SystemDomain>()
     private val sessions = ConcurrentHashMap<String, LoginSession>()
     private val ssoSessions = ConcurrentHashMap<String, SsoSession>()
     private val authorizationCodes = ConcurrentHashMap<String, AuthorizationCode>()
@@ -123,6 +139,7 @@ class InMemoryIamStore :
 
     override fun search(query: RoleSearchQuery): PageResponse<Role> {
         val filtered = roles.values
+            .filter { query.domainId == null || it.domainId == query.domainId || (it.domainId == null && it.appId == query.domainId) }
             .filter { query.appId == null || it.appId == query.appId }
             .filter { query.roleType == null || it.roleType.code == query.roleType }
             .filter {
@@ -135,7 +152,7 @@ class InMemoryIamStore :
     }
 
     override fun existsRoleCode(appId: String?, roleCode: String): Boolean {
-        return roles.values.any { it.appId == appId && it.roleCode == roleCode }
+        return roles.values.any { (it.domainId == appId || it.appId == appId) && it.roleCode == roleCode }
     }
 
     override fun deleteRole(id: String) {
@@ -155,7 +172,9 @@ class InMemoryIamStore :
 
     override fun search(query: ResourceSearchQuery): List<Resource> {
         return resources.values
+            .filter { query.domainId == null || it.domainId == query.domainId || it.appId == query.domainId }
             .filter { query.appId == null || it.appId == query.appId }
+            .filter { query.businessDomainId == null || it.businessDomainId == query.businessDomainId }
             .filter { query.resourceType == null || it.resourceType.code == query.resourceType }
             .filter {
                 query.keyword.isNullOrBlank() ||
@@ -166,7 +185,11 @@ class InMemoryIamStore :
     }
 
     override fun existsResourceCode(appId: String, resourceCode: String): Boolean {
-        return resources.values.any { it.appId == appId && it.resourceCode == resourceCode }
+        return resources.values.any { (it.domainId == appId || it.appId == appId) && it.resourceCode == resourceCode }
+    }
+
+    override fun deleteResource(id: String) {
+        resources.remove(id)
     }
 
     override fun save(permission: Permission): Permission {
@@ -180,7 +203,9 @@ class InMemoryIamStore :
 
     override fun search(query: PermissionSearchQuery): List<Permission> {
         return permissions.values
+            .filter { query.domainId == null || it.domainId == query.domainId || it.appId == query.domainId }
             .filter { query.appId == null || it.appId == query.appId }
+            .filter { query.businessDomainId == null || it.businessDomainId == query.businessDomainId }
             .filter { query.resourceId == null || it.resourceId == query.resourceId }
             .filter {
                 query.keyword.isNullOrBlank() ||
@@ -192,7 +217,11 @@ class InMemoryIamStore :
     }
 
     override fun existsPermissionCode(appId: String, permissionCode: String): Boolean {
-        return permissions.values.any { it.appId == appId && it.permissionCode == permissionCode }
+        return permissions.values.any { (it.domainId == appId || it.appId == appId) && it.permissionCode == permissionCode }
+    }
+
+    override fun deletePermission(id: String) {
+        permissions.remove(id)
     }
 
     override fun save(app: ClientApp): ClientApp {
@@ -206,6 +235,7 @@ class InMemoryIamStore :
 
     override fun search(query: AppSearchQuery): PageResponse<ClientApp> {
         val filtered = apps.values
+            .filter { query.domainId == null || it.domainId == query.domainId }
             .filter { query.status == null || it.status.code == query.status }
             .filter {
                 query.keyword.isNullOrBlank() ||
@@ -217,6 +247,33 @@ class InMemoryIamStore :
     }
 
     override fun existsByClientId(clientId: String): Boolean = apps.values.any { it.clientId == clientId }
+
+    override fun deleteApp(id: String) {
+        apps.remove(id)
+    }
+
+    override fun save(domain: SystemDomain): SystemDomain {
+        domains[domain.id] = domain
+        return domain
+    }
+
+    override fun findDomainById(id: String): SystemDomain? = domains[id]
+
+    override fun findByCode(code: String): SystemDomain? = domains.values.firstOrNull { it.code == code }
+
+    override fun search(query: SystemDomainSearchQuery): PageResponse<SystemDomain> {
+        val filtered = domains.values
+            .filter { query.enabled == null || it.enabled == query.enabled }
+            .filter {
+                query.keyword.isNullOrBlank() ||
+                    it.code.contains(query.keyword, true) ||
+                    it.name.contains(query.keyword, true)
+            }
+            .sortedByDescending { it.createdAt }
+        return filtered.page(query.page)
+    }
+
+    override fun existsByCode(code: String): Boolean = domains.values.any { it.code == code }
 
     override fun save(session: LoginSession): LoginSession {
         sessions[session.id] = session
@@ -262,8 +319,9 @@ class InMemoryIamStore :
     }
 
     override fun search(query: AuditSearchQuery): PageResponse<AuditEvent> {
+        val categories = query.eventCategories.takeIf { it.isNotEmpty() } ?: setOf(query.eventCategory)
         val filtered = auditEvents.values
-            .filter { it.eventCategory == query.eventCategory }
+            .filter { categories.contains(it.eventCategory) }
             .filter { query.actorId == null || it.actorId == query.actorId }
             .filter { query.targetId == null || it.targetId == query.targetId }
             .filter { query.userId == null || it.actorId == query.userId || it.targetId == query.userId }
@@ -280,5 +338,43 @@ class InMemoryIamStore :
         val from = pageQuery.offset.coerceAtMost(size)
         val to = (from + pageQuery.pageSize).coerceAtMost(size)
         return PageResponse.of(subList(from, to), pageQuery.page, pageQuery.pageSize, size.toLong())
+    }
+
+    private val businessDomains = ConcurrentHashMap<String, BusinessDomain>()
+    private val fieldPermissions = ConcurrentHashMap<String, FieldPermission>()
+    private val dataScopeConfigs = ConcurrentHashMap<String, DataScopeConfig>()
+
+    override fun save(domain: BusinessDomain): BusinessDomain { businessDomains[domain.id] = domain; return domain }
+    override fun findBusinessDomainById(id: String): BusinessDomain? = businessDomains[id]
+    override fun findByCode(appId: String, code: String): BusinessDomain? = businessDomains.values.find { it.appId == appId && it.code == code }
+    override fun search(query: BusinessDomainSearchQuery): PageResponse<BusinessDomain> {
+        val filtered = businessDomains.values
+            .filter { query.domainId == null || it.domainId == query.domainId }
+            .filter { query.appId == null || it.appId == query.appId }
+            .filter { query.keyword == null || it.code.contains(query.keyword, ignoreCase = true) || it.name.contains(query.keyword, ignoreCase = true) }
+            .sortedBy { it.code }
+        return filtered.toList().page(query.page)
+    }
+    override fun existsByCode(appId: String, code: String): Boolean = businessDomains.values.any { it.appId == appId && it.code == code }
+    override fun deleteBusinessDomain(id: String) { businessDomains.remove(id) }
+
+    override fun save(permission: FieldPermission): FieldPermission { fieldPermissions[permission.id] = permission; return permission }
+    override fun findFieldPermissionById(id: String): FieldPermission? = fieldPermissions[id]
+    override fun search(query: FieldPermissionSearchQuery): List<FieldPermission> {
+        return fieldPermissions.values
+            .filter { it.businessDomainId == query.businessDomainId }
+            .filter { query.roleId == null || it.roleId == query.roleId }
+            .toList()
+    }
+    override fun deleteByBusinessDomainId(businessDomainId: String) {
+        fieldPermissions.entries.removeIf { it.value.businessDomainId == businessDomainId }
+    }
+
+    override fun save(config: DataScopeConfig): DataScopeConfig { dataScopeConfigs[config.id] = config; return config }
+    override fun findDataScopeConfigById(id: String): DataScopeConfig? = dataScopeConfigs[id]
+    override fun findByBusinessDomainIdAndRoleId(businessDomainId: String, roleId: String): DataScopeConfig? =
+        dataScopeConfigs.values.find { it.businessDomainId == businessDomainId && it.roleId == roleId }
+    override fun deleteDataScopeConfigsByBusinessDomainId(businessDomainId: String) {
+        dataScopeConfigs.entries.removeIf { it.value.businessDomainId == businessDomainId }
     }
 }

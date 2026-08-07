@@ -23,4 +23,8 @@ object JsonColumns {
         if (json.isNullOrBlank()) return emptyMap()
         return mapper.readValue(json, object : TypeReference<Map<String, Any?>>() {})
     }
+
+    fun <T> readObject(json: String?, type: Class<T>): T {
+        return mapper.readValue(json?.takeIf { it.isNotBlank() } ?: "{}", type)
+    }
 }

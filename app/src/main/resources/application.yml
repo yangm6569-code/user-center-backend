@@ -61,7 +61,7 @@ springdoc:
     path: /v3/api-docs
   group-configs:
     - group: "用户中台"
-      paths-to-match: "/api/v1/**,/oauth/**"
+      paths-to-match: "/api/v1/**,/oauth/**,/.well-known/**"
       packages-to-scan: "cn.scysn"
 
 knife4j:
@@ -70,15 +70,17 @@ knife4j:
     language: zh_cn
 
 user-center:
+  sso:
+    login-url: ${UC_SSO_LOGIN_URL:http://localhost:5173/#/login}
   security:
     jwt-secret-key: ${JWT_SECRET_KEY:dev-only-change-me-dev-only-change-me-dev-only-change-me-32}
-    issuer: ${JWT_ISSUER:user-center}
+    issuer: ${JWT_ISSUER:http://127.0.0.1:8081}
     access-token-ttl-seconds: ${ACCESS_TOKEN_TTL_SECONDS:900}
     refresh-token-ttl-seconds: ${REFRESH_TOKEN_TTL_SECONDS:604800}
     login-failure-threshold: ${LOGIN_FAILURE_THRESHOLD:5}
     login-lock-minutes: ${LOGIN_LOCK_MINUTES:15}
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,https://*.cpolar.top,http://*.cpolar.top}
   bootstrap:
     admin-username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
     admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:Admin@123456}
